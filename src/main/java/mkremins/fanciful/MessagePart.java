@@ -5,7 +5,7 @@ import org.bukkit.ChatColor;
 final class MessagePart {
 
 	ChatColor color = null;
-	ChatStyle[] styles = null;
+	ChatColor[] styles = null;
 	String clickActionName = null, clickActionData = null,
 		   hoverActionName = null, hoverActionData = null;
 	final String text;
@@ -21,8 +21,8 @@ final class MessagePart {
 			JSON.append(",color:'").append(color.name().toLowerCase()).append("'");
 		}
 		if (styles != null) {
-			for (final ChatStyle style : styles) {
-				JSON.append(",").append(style.toString()).append(":true");
+			for (final ChatColor style : styles) {
+				JSON.append(",").append(style.name().toLowerCase()).append(":true");
 			}
 		}
 		if (clickActionName != null && clickActionData != null) {

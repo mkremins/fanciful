@@ -15,11 +15,19 @@ public class FancyMessage {
 	}
 	
 	public FancyMessage color(final ChatColor color) {
+		if (!color.isColor()) {
+			throw new IllegalArgumentException(color.name() + " is not a color");
+		}
 		latest().color = color;
 		return this;
 	}
 	
-	public FancyMessage style(final ChatStyle... styles) {
+	public FancyMessage style(final ChatColor... styles) {
+		for (final ChatColor style : styles) {
+			if (!style.isFormat()) {
+				throw new IllegalArgumentException(style.name() + " is not a style");
+			}
+		}
 		latest().styles = styles;
 		return this;
 	}

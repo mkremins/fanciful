@@ -1,7 +1,6 @@
 package mkremins.fanciful;
 
 import static org.bukkit.ChatColor.*;
-import mkremins.fanciful.ChatStyle;
 import mkremins.fanciful.FancyMessage;
 
 public final class Example {
@@ -17,10 +16,10 @@ public final class Example {
 			.color(YELLOW)
 		.then(playername)
 			.color(LIGHT_PURPLE)
-			.style(ChatStyle.ITALIC, ChatStyle.UNDERLINED)
+			.style(ITALIC, UNDERLINE)
 		.then("!")
 			.color(YELLOW)
-			.style(ChatStyle.ITALIC)
+			.style(ITALIC)
 		.toJSONString();
 	}
 	
@@ -29,14 +28,14 @@ public final class Example {
 			.color(GREEN)
 		.then("our website")
 			.color(YELLOW)
-			.style(ChatStyle.UNDERLINED)
+			.style(UNDERLINE)
 			.link("http://awesome-server.net")
 			.tooltip("AwesomeServer Forums")
 		.then(" to win ")
 			.color(GREEN)
 		.then("big prizes!")
 			.color(AQUA)
-			.style(ChatStyle.BOLD)
+			.style(BOLD)
 			.tooltip("Terms and conditions may apply. Offer not valid in Sweden.")
 		.toJSONString();
 	}
@@ -46,19 +45,19 @@ public final class Example {
 			.color(DARK_RED)
 		.then(playername)
 			.color(RED)
-			.style(ChatStyle.ITALIC)
+			.style(ITALIC)
 		.then(" changed ").color(DARK_RED)
 		.then(blocksEdited).color(AQUA)
 		.then(" blocks. ").color(DARK_RED)
 		.then("Roll back?")
 			.color(GOLD)
-			.style(ChatStyle.UNDERLINED)
+			.style(UNDERLINE)
 			.suggest("/rollenbacken " + playername)
 			.tooltip("Be careful, this might undo legitimate edits!")
 		.then(" ")
 		.then("Ban?")
 			.color(RED)
-			.style(ChatStyle.UNDERLINED)
+			.style(UNDERLINE)
 			.suggest("/banhammer " + playername)
 			.tooltip("Remember: only ban if you have photographic evidence of grief.")
 		.toJSONString();
