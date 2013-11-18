@@ -1,6 +1,8 @@
 package mkremins.fanciful;
 
 import org.bukkit.ChatColor;
+import org.json.JSONException;
+import org.json.JSONWriter;
 
 final class MessagePart {
 
@@ -14,33 +16,31 @@ final class MessagePart {
 		this.text = text;
 	}
 	
-	String toJSONString() {
-		final StringBuilder JSON = new StringBuilder();
-		JSON.append("{text:'").append(text).append("'");
+	JSONWriter writeJson(final JSONWriter json) throws JSONException {
+		json.object().key("text").value(text);
 		if (color != null) {
-			JSON.append(",color:'").append(color.name().toLowerCase()).append("'");
+			json.key("color").value(color.name().toLowerCase());
 		}
 		if (styles != null) {
 			for (final ChatColor style : styles) {
-				JSON.append(",").append(style.name().toLowerCase()).append(":true");
+				json.key(style.name().toLowerCase()).value(true);
 			}
 		}
 		if (clickActionName != null && clickActionData != null) {
-			JSON.append(",")
-				.append("clickEvent:{")
-				.append("action:'").append(clickActionName).append("',")
-				.append("value:'").append(clickActionData).append("'")
-				.append("}");
+			json.key("clickEvent")
+				.object()
+					.key("action").value(clickActionName)
+					.key("value").value(clickActionData)
+				.endObject();
 		}
 		if (hoverActionName != null && hoverActionData != null) {
-			JSON.append(",")
-				.append("hoverEvent:{")
-				.append("action:'").append(hoverActionName).append("',")
-				.append("value:'").append(hoverActionData).append("'")
-				.append("}");
+			json.key("hoverEvent")
+				.object()
+					.key("action").value(hoverActionName)
+					.key("value").value(hoverActionData)
+				.endObject();
 		}
-		JSON.append("}");
-		return JSON.toString();
+		return json.endObject();
 	}
 	
 }

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.ChatColor;
+import org.json.JSONException;
+import org.json.JSONStringer;
 
 public class FancyMessage {
 	
@@ -73,20 +75,21 @@ public class FancyMessage {
 	}
 	
 	public String toJSONString() {
-		if (messageParts.size() == 1) {
-			return latest().toJSONString();
-		} else {
-			final StringBuilder JSON = new StringBuilder();
-			JSON.append("{text:'',extra:[");
-			for (int i = 0; i < messageParts.size(); i++) {
-				JSON.append(messageParts.get(i).toJSONString());
-				if (i < messageParts.size() - 1) {
-					JSON.append(",");
+		final JSONStringer json = new JSONStringer();
+		try {
+			if (messageParts.size() == 1) {
+				latest().writeJson(json);
+			} else {
+				json.object().key("text").value("").key("extra").array();
+				for (final MessagePart part : messageParts) {
+					part.writeJson(json);
 				}
+				json.endArray().endObject();
 			}
-			JSON.append("]}");
-			return JSON.toString();
+		} catch (final JSONException e) {
+			throw new RuntimeException("invalid message");
 		}
+		return json.toString();
 	}
 	
 	private MessagePart latest() {
