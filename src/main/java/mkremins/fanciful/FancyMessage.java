@@ -96,6 +96,12 @@ public class FancyMessage {
 		return json.toString();
 	}
 	
+	public void send(Player player){
+
+		((CraftPlayer) player).getHandle().playerConnection.sendPacket(new PacketPlayOutChat(ChatSerializer.a(toJSONString())));
+
+	}
+	
 	private MessagePart latest() {
 		return messageParts.get(messageParts.size() - 1);
 	}
