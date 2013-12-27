@@ -18,18 +18,23 @@
       <url>http://repo.bukkit.org/content/groups/public/</url>
     </repository>
   </repositories>
-
+  
   <dependencies>
     <dependency>
       <groupId>org.bukkit</groupId>
       <artifactId>bukkit</artifactId>
-      <version>1.6.4-R2.0</version>
+      <version>1.7.2-R0.3</version>
     </dependency>
     <dependency>
       <groupId>org.json</groupId>
       <artifactId>json</artifactId>
       <version>20090211</version>
-    </dependency>        
+    </dependency>
+    <dependency>
+      <groupId>org.bukkit</groupId>
+      <artifactId>bukkit</artifactId>
+      <version>1.7.2-R0.3</version>
+    </dependency>
   </dependencies>
 
   <distributionManagement>
