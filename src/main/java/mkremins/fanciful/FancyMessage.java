@@ -3,7 +3,11 @@ package mkremins.fanciful;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.server.v1_7_R1.ChatSerializer;
+import net.minecraft.server.v1_7_R1.PacketPlayOutChat;
 import org.bukkit.ChatColor;
+import org.bukkit.craftbukkit.v1_7_R1.entity.CraftPlayer;
+import org.bukkit.entity.Player;
 import org.json.JSONException;
 import org.json.JSONStringer;
 
