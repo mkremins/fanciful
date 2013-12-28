@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.minecraft.server.v1_7_R1.ChatSerializer;
 import net.minecraft.server.v1_7_R1.PacketPlayOutChat;
+
 import org.bukkit.ChatColor;
 import org.bukkit.craftbukkit.v1_7_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
@@ -97,9 +98,7 @@ public class FancyMessage {
 	}
 	
 	public void send(Player player){
-
 		((CraftPlayer) player).getHandle().playerConnection.sendPacket(new PacketPlayOutChat(ChatSerializer.a(toJSONString())));
-
 	}
 	
 	private MessagePart latest() {
