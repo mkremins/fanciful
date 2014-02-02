@@ -74,6 +74,12 @@ public class FancyMessage {
 		return this;
 	}
 	
+	public FancyMessage itemTooltip(final ItemStack itemStack) {
+
+		return itemTooltip(CraftItemStack.asNMSCopy(itemStack).save(new NBTTagCompound()).toString());
+
+	}
+	
 	public FancyMessage then(final Object obj) {
 		messageParts.add(new MessagePart(obj.toString()));
 		return this;
