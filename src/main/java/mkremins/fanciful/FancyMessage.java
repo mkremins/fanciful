@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.server.v1_7_R1.ChatSerializer;
+import net.minecraft.server.v1_7_R1.NBTTagCompound;
 import net.minecraft.server.v1_7_R1.PacketPlayOutChat;
 
 import org.bukkit.ChatColor;
 import org.bukkit.craftbukkit.v1_7_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_7_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.json.JSONException;
 import org.json.JSONStringer;
 
@@ -69,17 +72,15 @@ public class FancyMessage {
 		return this;
 	}
 	
+	public FancyMessage itemTooltip(final ItemStack itemStack) {
+		return itemTooltip(CraftItemStack.asNMSCopy(itemStack).save(new NBTTagCompound()).toString());
+	}
+	
 	public FancyMessage tooltip(final String text) {
 		onHover("show_text", text);
 		return this;
 	}
-	
-	public FancyMessage itemTooltip(final ItemStack itemStack) {
 
-		return itemTooltip(CraftItemStack.asNMSCopy(itemStack).save(new NBTTagCompound()).toString());
-
-	}
-	
 	public FancyMessage then(final Object obj) {
 		messageParts.add(new MessagePart(obj.toString()));
 		return this;
