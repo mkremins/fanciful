@@ -122,7 +122,7 @@ public class FancyMessage {
 		try {
 			json.object().key("id").value(1);
 			json.key("tag").object().key("display").object();
-			json.key("Name").value(lines[0]);
+			json.key("Name").value("\\u00A7f" + lines[0]);
 			json.key("Lore").array();
 			for (int i = 1; i < lines.length; i++) {
 				json.value(lines[i]);
