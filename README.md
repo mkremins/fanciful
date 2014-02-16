@@ -6,20 +6,22 @@ Installation
 --------
 Use Maven. Add the Fanciful repository and dependency entries to your `pom.xml`.
 
-    <repository>
-      <id>fanciful-mvn-repo</id>
-      <url>https://raw.github.com/mkremins/fanciful/mvn-repo/</url>
-      <snapshots>
-        <enabled>true</enabled>
-        <updatePolicy>always</updatePolicy>
-      </snapshots>
-    </repository>
+```xml
+<repository>
+  <id>fanciful-mvn-repo</id>
+  <url>https://raw.github.com/mkremins/fanciful/mvn-repo/</url>
+  <snapshots>
+    <enabled>true</enabled>
+    <updatePolicy>always</updatePolicy>
+  </snapshots>
+</repository>
 
-    <dependency>
-      <groupId>mkremins</groupId>
-      <artifactId>fanciful</artifactId>
-      <version>0.1.1</version>
-    </dependency>
+<dependency>
+  <groupId>mkremins</groupId>
+  <artifactId>fanciful</artifactId>
+  <version>0.1.2</version>
+</dependency>
+```
 
 Usage
 --------
@@ -27,7 +29,7 @@ See [Example.java](http://github.com/mkremins/fanciful/tree/master/src/example/j
 
 Status
 --------
-Super-duper WIP. Fortunately, Bukkit 1.7.x is no more ready for release than this is, so I've got some time.
+Relatively stable core featureset, with new features under active development.
 
 License
 --------
