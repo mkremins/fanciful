@@ -77,7 +77,12 @@ public class FancyMessage {
 	}
 	
 	public FancyMessage tooltip(final String text) {
-		onHover("show_text", text);
+		final String[] lines = text.split("\\n");
+		if (lines.length <= 1) {
+			onHover("show_text", text);
+		} else {
+			itemTooltip(makeMultilineTooltip(lines));
+		}
 		return this;
 	}
 
@@ -110,6 +115,23 @@ public class FancyMessage {
 	
 	private MessagePart latest() {
 		return messageParts.get(messageParts.size() - 1);
+	}
+	
+	private String makeMultilineTooltip(final String[] lines) {
+		final JSONStringer json = new JSONStringer();
+		try {
+			json.object().key("id").value(1);
+			json.key("tag").object().key("display").object();
+			json.key("Name").value(lines[0]);
+			json.key("Lore").array();
+			for (int i = 1; i < lines.length; i++) {
+				json.value(lines[i]);
+			}
+			json.endArray().endObject().endObject().endObject();
+		} catch (final JSONException e) {
+			throw new RuntimeException("invalid tooltip");
+		}
+		return json.toString();
 	}
 	
 	private void onClick(final String name, final String data) {
