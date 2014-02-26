@@ -10,10 +10,6 @@ Use Maven. Add the Fanciful repository and dependency entries to your `pom.xml`.
 <repository>
   <id>fanciful-mvn-repo</id>
   <url>https://raw.github.com/mkremins/fanciful/mvn-repo/</url>
-  <snapshots>
-    <enabled>true</enabled>
-    <updatePolicy>always</updatePolicy>
-  </snapshots>
 </repository>
 
 <dependency>
