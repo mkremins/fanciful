@@ -18,10 +18,12 @@ import org.json.JSONStringer;
 public class FancyMessage {
 	
 	private final List<MessagePart> messageParts;
+	private String jsonString;
 	
 	public FancyMessage(final String firstPartText) {
 		messageParts = new ArrayList<MessagePart>();
 		messageParts.add(new MessagePart(firstPartText));
+		jsonString = null;
 	}
 	
 	public FancyMessage color(final ChatColor color) {
@@ -92,6 +94,9 @@ public class FancyMessage {
 	}
 	
 	public String toJSONString() {
+		if (jsonString != null) {
+			return jsonString;
+		}
 		final JSONStringer json = new JSONStringer();
 		try {
 			if (messageParts.size() == 1) {
@@ -106,7 +111,8 @@ public class FancyMessage {
 		} catch (final JSONException e) {
 			throw new RuntimeException("invalid message");
 		}
-		return json.toString();
+		jsonString = json.toString();
+		return jsonString;
 	}
 	
 	public void send(Player player){
