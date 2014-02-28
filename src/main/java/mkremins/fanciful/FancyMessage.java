@@ -19,11 +19,13 @@ public class FancyMessage {
 	
 	private final List<MessagePart> messageParts;
 	private String jsonString;
+	private boolean dirty;
 	
 	public FancyMessage(final String firstPartText) {
 		messageParts = new ArrayList<MessagePart>();
 		messageParts.add(new MessagePart(firstPartText));
 		jsonString = null;
+		dirty = false;
 	}
 	
 	public FancyMessage color(final ChatColor color) {
@@ -31,6 +33,7 @@ public class FancyMessage {
 			throw new IllegalArgumentException(color.name() + " is not a color");
 		}
 		latest().color = color;
+		dirty = true;
 		return this;
 	}
 	
@@ -41,6 +44,7 @@ public class FancyMessage {
 			}
 		}
 		latest().styles = styles;
+		dirty = true;
 		return this;
 	}
 	
@@ -90,11 +94,12 @@ public class FancyMessage {
 
 	public FancyMessage then(final Object obj) {
 		messageParts.add(new MessagePart(obj.toString()));
+		dirty = true;
 		return this;
 	}
 	
 	public String toJSONString() {
-		if (jsonString != null) {
+		if (!dirty && jsonString != null) {
 			return jsonString;
 		}
 		final JSONStringer json = new JSONStringer();
@@ -112,6 +117,7 @@ public class FancyMessage {
 			throw new RuntimeException("invalid message");
 		}
 		jsonString = json.toString();
+		dirty = false;
 		return jsonString;
 	}
 	
@@ -145,12 +151,14 @@ public class FancyMessage {
 		final MessagePart latest = latest();
 		latest.clickActionName = name;
 		latest.clickActionData = data;
+		dirty = true;
 	}
 	
 	private void onHover(final String name, final String data) {
 		final MessagePart latest = latest();
 		latest.hoverActionName = name;
 		latest.hoverActionData = data;
+		dirty = true;
 	}
 	
 }
