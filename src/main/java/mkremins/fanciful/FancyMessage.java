@@ -7,9 +7,15 @@ import net.minecraft.server.v1_7_R1.ChatSerializer;
 import net.minecraft.server.v1_7_R1.NBTTagCompound;
 import net.minecraft.server.v1_7_R1.PacketPlayOutChat;
 
+import org.bukkit.Achievement;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.Statistic;
+import org.bukkit.Statistic.Type;
+import org.bukkit.craftbukkit.v1_7_R1.CraftStatistic;
 import org.bukkit.craftbukkit.v1_7_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_7_R1.inventory.CraftItemStack;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.json.JSONException;
@@ -71,6 +77,44 @@ public class FancyMessage {
 	public FancyMessage achievementTooltip(final String name) {
 		onHover("show_achievement", "achievement." + name);
 		return this;
+	}
+	
+	public FancyMessage achievementTooltip(final Achievement which) {
+		net.minecraft.server.v1_7_R1.Achievement nms = CraftStatistic.getNMSAchievement(which);
+		return achievementTooltip(nms.e);
+	}
+	
+	public FancyMessage statisticTooltip(final Statistic which) {
+		Type type = which.getType();
+		if (type != Type.UNTYPED) {
+			throw new IllegalArgumentException("That statistic requires an additional " + type + " parameter!");
+		}
+		net.minecraft.server.v1_7_R1.Statistic nms = CraftStatistic.getNMSStatistic(which);
+		return achievementTooltip(nms.e);
+	}
+	
+	public FancyMessage statisticTooltip(final Statistic which, Material item) {
+		Type type = which.getType();
+		if (type == Type.UNTYPED) {
+			throw new IllegalArgumentException("That statistic needs no additional parameter!");
+		}
+		if ((type == Type.BLOCK && item.isBlock()) || type == Type.ENTITY) {
+			throw new IllegalArgumentException("Wrong parameter type for that statistic - needs " + type + "!");
+		}
+		net.minecraft.server.v1_7_R1.Statistic nms = CraftStatistic.getMaterialStatistic(which, item);
+		return achievementTooltip(nms.e);
+	}
+	
+	public FancyMessage statisticTooltip(final Statistic which, EntityType entity) {
+		Type type = which.getType();
+		if (type == Type.UNTYPED) {
+			throw new IllegalArgumentException("That statistic needs no additional parameter!");
+		}
+		if (type != Type.ENTITY) {
+			throw new IllegalArgumentException("Wrong parameter type for that statistic - needs " + type + "!");
+		}
+		net.minecraft.server.v1_7_R1.Statistic nms = CraftStatistic.getEntityStatistic(which, entity);
+		return achievementTooltip(nms.e);
 	}
 	
 	public FancyMessage itemTooltip(final String itemJSON) {
