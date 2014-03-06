@@ -1,5 +1,6 @@
 package mkremins.fanciful;
 
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,14 +13,13 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.Statistic.Type;
+import org.bukkit.craftbukkit.libs.com.google.gson.stream.JsonWriter;
 import org.bukkit.craftbukkit.v1_7_R1.CraftStatistic;
 import org.bukkit.craftbukkit.v1_7_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_7_R1.inventory.CraftItemStack;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.json.JSONException;
-import org.json.JSONStringer;
 
 public class FancyMessage {
 	
@@ -146,21 +146,23 @@ public class FancyMessage {
 		if (!dirty && jsonString != null) {
 			return jsonString;
 		}
-		final JSONStringer json = new JSONStringer();
+		StringWriter string = new StringWriter();
+		JsonWriter json = new JsonWriter(string);
 		try {
 			if (messageParts.size() == 1) {
 				latest().writeJson(json);
 			} else {
-				json.object().key("text").value("").key("extra").array();
+				json.beginObject().name("text").value("").name("extra").beginArray();
 				for (final MessagePart part : messageParts) {
 					part.writeJson(json);
 				}
 				json.endArray().endObject();
+				json.close();
 			}
-		} catch (final JSONException e) {
+		} catch (Exception e) {
 			throw new RuntimeException("invalid message");
 		}
-		jsonString = json.toString();
+		jsonString = string.toString();
 		dirty = false;
 		return jsonString;
 	}
@@ -174,21 +176,23 @@ public class FancyMessage {
 	}
 	
 	private String makeMultilineTooltip(final String[] lines) {
-		final JSONStringer json = new JSONStringer();
+		StringWriter string = new StringWriter();
+		JsonWriter json = new JsonWriter(string);
 		try {
-			json.object().key("id").value(1);
-			json.key("tag").object().key("display").object();
-			json.key("Name").value("\\u00A7f" + lines[0].replace("\"", "\\\""));
-			json.key("Lore").array();
+			json.beginObject().name("id").value(1);
+			json.name("tag").beginObject().name("display").beginObject();
+			json.name("Name").value("\\u00A7f" + lines[0].replace("\"", "\\\""));
+			json.name("Lore").beginArray();
 			for (int i = 1; i < lines.length; i++) {
 				final String line = lines[i];
 				json.value(line.isEmpty() ? " " : line.replace("\"", "\\\""));
 			}
 			json.endArray().endObject().endObject().endObject();
-		} catch (final JSONException e) {
+			json.close();
+		} catch (Exception e) {
 			throw new RuntimeException("invalid tooltip");
 		}
-		return json.toString();
+		return string.toString();
 	}
 	
 	private void onClick(final String name, final String data) {
