@@ -127,15 +127,22 @@ public class FancyMessage {
 	}
 	
 	public FancyMessage tooltip(final String text) {
-		final String[] lines = text.split("\\n");
-		if (lines.length <= 1) {
-			onHover("show_text", text);
+		return tooltip(text.split("\\n"));
+	}
+	
+	public FancyMessage tooltip(final List<String> lines) {
+		return tooltip((String[])lines.toArray());
+	}
+	
+	public FancyMessage tooltip(final String... lines) {
+		if (lines.length == 1) {
+			onHover("show_text", lines[0]);
 		} else {
 			itemTooltip(makeMultilineTooltip(lines));
 		}
 		return this;
 	}
-
+	
 	public FancyMessage then(final Object obj) {
 		messageParts.add(new MessagePart(obj.toString()));
 		dirty = true;
