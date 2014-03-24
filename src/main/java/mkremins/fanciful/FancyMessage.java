@@ -178,6 +178,13 @@ public class FancyMessage {
 		((CraftPlayer) player).getHandle().playerConnection.sendPacket(new PacketPlayOutChat(ChatSerializer.a(toJSONString())));
 	}
 	
+	public void send(final Iterable<Player> players) {
+		final String json = toJSONString();
+		for (final Player player : players) {
+			((CraftPlayer) player).getHandle().playerConnection.sendPacket(new PacketPlayOutChat(ChatSerializer.a(json)));
+		}
+	}
+	
 	private MessagePart latest() {
 		return messageParts.get(messageParts.size() - 1);
 	}
