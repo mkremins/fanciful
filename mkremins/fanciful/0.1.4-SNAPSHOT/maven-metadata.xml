@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata modelVersion="1.1.0">
+  <groupId>mkremins</groupId>
+  <artifactId>fanciful</artifactId>
+  <version>0.1.4-SNAPSHOT</version>
+  <versioning>
+    <snapshot>
+      <timestamp>20140326.041904</timestamp>
+      <buildNumber>1</buildNumber>
+    </snapshot>
+    <lastUpdated>20140326041904</lastUpdated>
+    <snapshotVersions>
+      <snapshotVersion>
+        <extension>jar</extension>
+        <value>0.1.4-20140326.041904-1</value>
+        <updated>20140326041904</updated>
+      </snapshotVersion>
+      <snapshotVersion>
+        <extension>pom</extension>
+        <value>0.1.4-20140326.041904-1</value>
+        <updated>20140326041904</updated>
+      </snapshotVersion>
+    </snapshotVersions>
+  </versioning>
+</metadata>
