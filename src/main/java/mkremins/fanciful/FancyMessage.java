@@ -4,9 +4,9 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.server.v1_7_R1.ChatSerializer;
-import net.minecraft.server.v1_7_R1.NBTTagCompound;
-import net.minecraft.server.v1_7_R1.PacketPlayOutChat;
+import net.minecraft.server.v1_7_R2.ChatSerializer;
+import net.minecraft.server.v1_7_R2.NBTTagCompound;
+import net.minecraft.server.v1_7_R2.PacketPlayOutChat;
 
 import org.bukkit.Achievement;
 import org.bukkit.ChatColor;
@@ -14,9 +14,9 @@ import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.Statistic.Type;
 import org.bukkit.craftbukkit.libs.com.google.gson.stream.JsonWriter;
-import org.bukkit.craftbukkit.v1_7_R1.CraftStatistic;
-import org.bukkit.craftbukkit.v1_7_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_7_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_7_R2.CraftStatistic;
+import org.bukkit.craftbukkit.v1_7_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_7_R2.inventory.CraftItemStack;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -80,8 +80,8 @@ public class FancyMessage {
 	}
 	
 	public FancyMessage achievementTooltip(final Achievement which) {
-		net.minecraft.server.v1_7_R1.Achievement nms = CraftStatistic.getNMSAchievement(which);
-		return achievementTooltip(nms.e);
+		net.minecraft.server.v1_7_R2.Achievement nms = CraftStatistic.getNMSAchievement(which);
+		return achievementTooltip(nms.name);
 	}
 	
 	public FancyMessage statisticTooltip(final Statistic which) {
@@ -89,8 +89,8 @@ public class FancyMessage {
 		if (type != Type.UNTYPED) {
 			throw new IllegalArgumentException("That statistic requires an additional " + type + " parameter!");
 		}
-		net.minecraft.server.v1_7_R1.Statistic nms = CraftStatistic.getNMSStatistic(which);
-		return achievementTooltip(nms.e);
+		net.minecraft.server.v1_7_R2.Statistic nms = CraftStatistic.getNMSStatistic(which);
+		return achievementTooltip(nms.name);
 	}
 	
 	public FancyMessage statisticTooltip(final Statistic which, Material item) {
@@ -101,8 +101,8 @@ public class FancyMessage {
 		if ((type == Type.BLOCK && item.isBlock()) || type == Type.ENTITY) {
 			throw new IllegalArgumentException("Wrong parameter type for that statistic - needs " + type + "!");
 		}
-		net.minecraft.server.v1_7_R1.Statistic nms = CraftStatistic.getMaterialStatistic(which, item);
-		return achievementTooltip(nms.e);
+		net.minecraft.server.v1_7_R2.Statistic nms = CraftStatistic.getMaterialStatistic(which, item);
+		return achievementTooltip(nms.name);
 	}
 	
 	public FancyMessage statisticTooltip(final Statistic which, EntityType entity) {
@@ -113,8 +113,8 @@ public class FancyMessage {
 		if (type != Type.ENTITY) {
 			throw new IllegalArgumentException("Wrong parameter type for that statistic - needs " + type + "!");
 		}
-		net.minecraft.server.v1_7_R1.Statistic nms = CraftStatistic.getEntityStatistic(which, entity);
-		return achievementTooltip(nms.e);
+		net.minecraft.server.v1_7_R2.Statistic nms = CraftStatistic.getEntityStatistic(which, entity);
+		return achievementTooltip(nms.name);
 	}
 	
 	public FancyMessage itemTooltip(final String itemJSON) {
