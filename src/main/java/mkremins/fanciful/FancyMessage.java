@@ -4,9 +4,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.server.v1_7_R2.ChatSerializer;
-import net.minecraft.server.v1_7_R2.NBTTagCompound;
-import net.minecraft.server.v1_7_R2.PacketPlayOutChat;
+import net.amoebaman.util.Reflection;
 
 import org.bukkit.Achievement;
 import org.bukkit.ChatColor;
@@ -14,9 +12,6 @@ import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.Statistic.Type;
 import org.bukkit.craftbukkit.libs.com.google.gson.stream.JsonWriter;
-import org.bukkit.craftbukkit.v1_7_R2.CraftStatistic;
-import org.bukkit.craftbukkit.v1_7_R2.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_7_R2.inventory.CraftItemStack;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -26,6 +21,16 @@ public class FancyMessage {
 	private final List<MessagePart> messageParts;
 	private String jsonString;
 	private boolean dirty;
+	
+	private Class<?> nmsChatSerializer = Reflection.getNMSClass("ChatSerializer");
+	private Class<?> nmsTagCompound = Reflection.getNMSClass("NBTTagCompound");
+	private Class<?> nmsPacketPlayOutChat = Reflection.getNMSClass("PacketPlayOutChat");
+	private Class<?> nmsAchievement = Reflection.getNMSClass("Achievement");
+	private Class<?> nmsStatistic = Reflection.getNMSClass("Statistic");
+	private Class<?> nmsItemStack = Reflection.getNMSClass("ItemStack");
+
+	private Class<?> obcStatistic = Reflection.getOBCClass("CraftStatistic");
+	private Class<?> obcItemStack = Reflection.getOBCClass("inventory.CraftItemStack");
 	
 	public FancyMessage(final String firstPartText) {
 		messageParts = new ArrayList<MessagePart>();
@@ -80,8 +85,13 @@ public class FancyMessage {
 	}
 	
 	public FancyMessage achievementTooltip(final Achievement which) {
-		net.minecraft.server.v1_7_R2.Achievement nms = CraftStatistic.getNMSAchievement(which);
-		return achievementTooltip(nms.name);
+		try {
+			Object achievement = Reflection.getMethod(obcStatistic, "getNMSAchievement").invoke(null, which);
+			return achievementTooltip((String) Reflection.getField(nmsAchievement, "name").get(achievement));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return this;
+		}
 	}
 	
 	public FancyMessage statisticTooltip(final Statistic which) {
@@ -89,8 +99,13 @@ public class FancyMessage {
 		if (type != Type.UNTYPED) {
 			throw new IllegalArgumentException("That statistic requires an additional " + type + " parameter!");
 		}
-		net.minecraft.server.v1_7_R2.Statistic nms = CraftStatistic.getNMSStatistic(which);
-		return achievementTooltip(nms.name);
+		try {
+			Object statistic = Reflection.getMethod(obcStatistic, "getNMSStatistic").invoke(null, which);
+			return achievementTooltip((String) Reflection.getField(nmsStatistic, "name").get(statistic));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return this;
+		}
 	}
 	
 	public FancyMessage statisticTooltip(final Statistic which, Material item) {
@@ -101,8 +116,13 @@ public class FancyMessage {
 		if ((type == Type.BLOCK && item.isBlock()) || type == Type.ENTITY) {
 			throw new IllegalArgumentException("Wrong parameter type for that statistic - needs " + type + "!");
 		}
-		net.minecraft.server.v1_7_R2.Statistic nms = CraftStatistic.getMaterialStatistic(which, item);
-		return achievementTooltip(nms.name);
+		try {
+			Object statistic = Reflection.getMethod(obcStatistic, "getMaterialStatistic").invoke(null, which, item);
+			return achievementTooltip((String) Reflection.getField(nmsStatistic, "name").get(statistic));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return this;
+		}
 	}
 	
 	public FancyMessage statisticTooltip(final Statistic which, EntityType entity) {
@@ -113,8 +133,13 @@ public class FancyMessage {
 		if (type != Type.ENTITY) {
 			throw new IllegalArgumentException("Wrong parameter type for that statistic - needs " + type + "!");
 		}
-		net.minecraft.server.v1_7_R2.Statistic nms = CraftStatistic.getEntityStatistic(which, entity);
-		return achievementTooltip(nms.name);
+		try {
+			Object statistic = Reflection.getMethod(obcStatistic, "getEntityStatistic").invoke(null, which, entity);
+			return achievementTooltip((String) Reflection.getField(nmsStatistic, "name").get(statistic));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return this;
+		}
 	}
 	
 	public FancyMessage itemTooltip(final String itemJSON) {
@@ -123,7 +148,13 @@ public class FancyMessage {
 	}
 	
 	public FancyMessage itemTooltip(final ItemStack itemStack) {
-		return itemTooltip(CraftItemStack.asNMSCopy(itemStack).save(new NBTTagCompound()).toString());
+		try {
+			Object nmsItem = Reflection.getMethod(obcItemStack, "asNMSCopy", ItemStack.class).invoke(null, itemStack);
+			return itemTooltip(Reflection.getMethod(nmsItemStack, "save").invoke(nmsItem, nmsTagCompound.newInstance()).toString());
+		} catch (Exception e) {
+			e.printStackTrace();
+			return this;
+		}
 	}
 	
 	public FancyMessage tooltip(final String text) {
@@ -175,13 +206,20 @@ public class FancyMessage {
 	}
 	
 	public void send(Player player){
-		((CraftPlayer) player).getHandle().playerConnection.sendPacket(new PacketPlayOutChat(ChatSerializer.a(toJSONString())));
+		try {
+			Object handle = Reflection.getHandle(player);
+			Object connection = Reflection.getField(handle.getClass(), "playerConnection").get(handle);
+			Object serialized = Reflection.getMethod(nmsChatSerializer, "a", String.class).invoke(null, toJSONString());
+			Object packet = nmsPacketPlayOutChat.getConstructor(Reflection.getNMSClass("IChatBaseComponent")).newInstance(serialized);
+			Reflection.getMethod(connection.getClass(), "sendPacket").invoke(connection, packet);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void send(final Iterable<Player> players) {
-		final String json = toJSONString();
 		for (final Player player : players) {
-			((CraftPlayer) player).getHandle().playerConnection.sendPacket(new PacketPlayOutChat(ChatSerializer.a(json)));
+			send(player);
 		}
 	}
 	
