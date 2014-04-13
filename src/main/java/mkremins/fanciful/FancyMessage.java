@@ -224,11 +224,11 @@ public class FancyMessage {
 	}
 	
 	public String toOldMessageFormat() {
-		String result = "";
+		StringBuilder result = new StringBuilder();
 		for (MessagePart part : messageParts) {
-			result += part.color + part.text;
+			result.append(part.color).append(part.text);
 		}
-		return result;
+		return result.toString();
 	}
 	
 	private MessagePart latest() {
