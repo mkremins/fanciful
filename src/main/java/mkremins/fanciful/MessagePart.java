@@ -5,8 +5,8 @@ import org.bukkit.craftbukkit.libs.com.google.gson.stream.JsonWriter;
 
 final class MessagePart {
 
-	ChatColor color = null;
-	ChatColor[] styles = null;
+	ChatColor color = ChatColor.WHITE;
+	ChatColor[] styles = {};
 	String clickActionName = null, clickActionData = null,
 		   hoverActionName = null, hoverActionData = null;
 	final String text;
@@ -18,13 +18,9 @@ final class MessagePart {
 	JsonWriter writeJson(JsonWriter json) {
 		try {
 			json.beginObject().name("text").value(text);
-			if (color != null) {
-				json.name("color").value(color.name().toLowerCase());
-			}
-			if (styles != null) {
-				for (final ChatColor style : styles) {
-					json.name(style.name().toLowerCase()).value(true);
-				}
+			json.name("color").value(color.name().toLowerCase());
+			for (final ChatColor style : styles) {
+				json.name(style.name().toLowerCase()).value(true);
 			}
 			if (clickActionName != null && clickActionData != null) {
 				json.name("clickEvent")
