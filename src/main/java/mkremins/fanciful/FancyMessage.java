@@ -223,6 +223,14 @@ public class FancyMessage {
 		}
 	}
 	
+	public String toOldMessageFormat() {
+		String result = "";
+		for (MessagePart part : messageParts) {
+			result += part.color + part.text;
+		}
+		return result;
+	}
+	
 	private MessagePart latest() {
 		return messageParts.get(messageParts.size() - 1);
 	}
