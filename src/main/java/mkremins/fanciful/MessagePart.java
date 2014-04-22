@@ -21,10 +21,10 @@ final class MessagePart {
 			json.name("color").value(color.name().toLowerCase());
 			for (final ChatColor style : styles) {
 				if (style == ChatColor.MAGIC) {
-                    			json.name("obfuscated").value(true);
-                		} else {
-                    			json.name(style.name().toLowerCase()).value(true);
-                		}
+					json.name("obfuscated").value(true);
+				} else {
+					json.name(style.name().toLowerCase()).value(true);
+				}
 			}
 			if (clickActionName != null && clickActionData != null) {
 				json.name("clickEvent")
