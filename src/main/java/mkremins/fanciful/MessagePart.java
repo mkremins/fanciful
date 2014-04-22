@@ -9,10 +9,16 @@ final class MessagePart {
 	ChatColor[] styles = {};
 	String clickActionName = null, clickActionData = null,
 		   hoverActionName = null, hoverActionData = null;
-	final String text;
+	String text = null;
 
 	MessagePart(final String text) {
 		this.text = text;
+	}
+	
+	MessagePart() {}
+	
+	boolean hasText() {
+		return text != null;
 	}
 
 	JsonWriter writeJson(JsonWriter json) {
