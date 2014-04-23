@@ -39,6 +39,23 @@ public class FancyMessage {
 		dirty = false;
 	}
 	
+	public FancyMessage() {
+		messageParts = new ArrayList<MessagePart>();
+		messageParts.add(new MessagePart());
+		jsonString = null;
+		dirty = false;
+	}
+	
+	public FancyMessage text(String text) {
+		MessagePart latest = latest();
+		if (latest.hasText()) {
+			throw new IllegalStateException("text for this message part is already set");
+		}
+		latest.text = text;
+		dirty = true;
+		return this;
+	}
+	
 	public FancyMessage color(final ChatColor color) {
 		if (!color.isColor()) {
 			throw new IllegalArgumentException(color.name() + " is not a color");
@@ -175,7 +192,19 @@ public class FancyMessage {
 	}
 	
 	public FancyMessage then(final Object obj) {
+		if (!latest().hasText()) {
+			throw new IllegalStateException("previous message part has no text");
+		}
 		messageParts.add(new MessagePart(obj.toString()));
+		dirty = true;
+		return this;
+	}
+	
+	public FancyMessage then() {
+		if (!latest().hasText()) {
+			throw new IllegalStateException("previous message part has no text");
+		}
+		messageParts.add(new MessagePart());
 		dirty = true;
 		return this;
 	}
