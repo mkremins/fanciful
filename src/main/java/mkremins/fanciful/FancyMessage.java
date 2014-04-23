@@ -65,13 +65,22 @@ public class FancyMessage {
 		return this;
 	}
 	
-	public FancyMessage style(final ChatColor... styles) {
+	public FancyMessage style(ChatColor... styles) {
 		for (final ChatColor style : styles) {
 			if (!style.isFormat()) {
 				throw new IllegalArgumentException(style.name() + " is not a style");
 			}
 		}
-		latest().styles = styles;
+                latest().styles.addAll(Arrays.asList(styles));
+		dirty = true;
+		return this;
+	}
+	
+        public FancyMessage style(ChatColor style) {
+		if (!style.isFormat()) {
+			throw new IllegalArgumentException(style.name() + " is not a style");
+		}
+		latest().styles.add(style);
 		dirty = true;
 		return this;
 	}

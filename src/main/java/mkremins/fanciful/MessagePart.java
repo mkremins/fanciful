@@ -1,12 +1,13 @@
 package mkremins.fanciful;
 
+import java.util.ArrayList;
 import org.bukkit.ChatColor;
 import org.bukkit.craftbukkit.libs.com.google.gson.stream.JsonWriter;
 
 final class MessagePart {
 
 	ChatColor color = ChatColor.WHITE;
-	ChatColor[] styles = {};
+	ArrayList<ChatColor> styles = new ArrayList<ChatColor>();
 	String clickActionName = null, clickActionData = null,
 		   hoverActionName = null, hoverActionData = null;
 	String text = null;
