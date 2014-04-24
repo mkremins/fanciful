@@ -3,10 +3,9 @@
   <groupId>mkremins</groupId>
   <artifactId>fanciful</artifactId>
   <versioning>
-    <release>0.1.5</release>
     <versions>
-      <version>0.1.5</version>
+      <version>0.1.6-SNAPSHOT</version>
     </versions>
-    <lastUpdated>20140423020723</lastUpdated>
+    <lastUpdated>20140424072652</lastUpdated>
   </versioning>
 </metadata>
