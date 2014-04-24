@@ -27,11 +27,16 @@ final class MessagePart {
 			json.beginObject().name("text").value(text);
 			json.name("color").value(color.name().toLowerCase());
 			for (final ChatColor style : styles) {
-				if (style == ChatColor.MAGIC) {
-					json.name("obfuscated").value(true);
-				} else {
-					json.name(style.name().toLowerCase()).value(true);
+				String styleName;
+				switch (style) {
+				case MAGIC:
+					styleName = "obfuscated"; break;
+				case UNDERLINE:
+					styleName = "underlined"; break;
+				default:
+					styleName = style.name().toLowerCase(); break;
 				}
+				json.name(styleName).value(true);
 			}
 			if (clickActionName != null && clickActionData != null) {
 				json.name("clickEvent")
