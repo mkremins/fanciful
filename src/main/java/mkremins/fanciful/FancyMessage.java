@@ -2,6 +2,7 @@ package mkremins.fanciful;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import net.amoebaman.util.Reflection;
@@ -71,16 +72,7 @@ public class FancyMessage {
 				throw new IllegalArgumentException(style.name() + " is not a style");
 			}
 		}
-                latest().styles.addAll(Arrays.asList(styles));
-		dirty = true;
-		return this;
-	}
-	
-        public FancyMessage style(ChatColor style) {
-		if (!style.isFormat()) {
-			throw new IllegalArgumentException(style.name() + " is not a style");
-		}
-		latest().styles.add(style);
+		latest().styles.addAll(Arrays.asList(styles));
 		dirty = true;
 		return this;
 	}
