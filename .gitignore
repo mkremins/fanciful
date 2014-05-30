@@ -1,5 +1,22 @@
-.classpath
-/target
-.project
-.settings/
+# Eclipse stuff
+/.classpath
+/.project
+/.settings
+
+# netbeans
+/nbproject
+
+#IntelliJ
+*.iml
+/.idea
+
+# various other potential build files
 /bin
+/dist
+/manifest.mf
+/.fatjar
+
+# Mac filesystem dust
+.DS_Store
+.DS_Storetarget
+/target
