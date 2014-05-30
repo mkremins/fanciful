@@ -255,19 +255,19 @@ public class FancyMessage {
 		}
 	}
 
-    public void send(CommandSender sender) {
-        if (sender instanceof Player) {
-            send((Player) sender);
-        } else if (sender instanceof ConsoleCommandSender) {
-            sender.sendMessage(toOldMessageFormat());
-        }
-    }
+	public void send(CommandSender sender) {
+		if (sender instanceof Player) {
+			send((Player) sender);
+		} else {
+			sender.sendMessage(toOldMessageFormat());
+		}
+	}
 
-    public void send(final Iterable<CommandSender> senders) {
-        for (final CommandSender sender : senders) {
-            send(sender);
-        }
-    }
+	public void send(final Iterable<CommandSender> senders) {
+		for (final CommandSender sender : senders) {
+			send(sender);
+		}
+	}
 	
 	public String toOldMessageFormat() {
 		StringBuilder result = new StringBuilder();
