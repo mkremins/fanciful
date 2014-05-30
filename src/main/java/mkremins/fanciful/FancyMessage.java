@@ -248,12 +248,6 @@ public class FancyMessage {
 			e.printStackTrace();
 		}
 	}
-	
-	public void send(final Iterable<Player> players) {
-		for (final Player player : players) {
-			send(player);
-		}
-	}
 
 	public void send(CommandSender sender) {
 		if (sender instanceof Player) {
