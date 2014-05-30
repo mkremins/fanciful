@@ -9,6 +9,8 @@ import net.amoebaman.util.Reflection;
 
 import org.bukkit.Achievement;
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.Statistic.Type;
@@ -250,6 +252,20 @@ public class FancyMessage {
 	public void send(final Iterable<Player> players) {
 		for (final Player player : players) {
 			send(player);
+		}
+	}
+
+	public void send(CommandSender sender) {
+		if (sender instanceof Player) {
+			send((Player) sender);
+		} else {
+			sender.sendMessage(toOldMessageFormat());
+		}
+	}
+
+	public void send(final Iterable<CommandSender> senders) {
+		for (final CommandSender sender : senders) {
+			send(sender);
 		}
 	}
 	
