@@ -107,7 +107,7 @@ public class FancyMessage {
 	
 	public FancyMessage achievementTooltip(final Achievement which) {
 		try {
-			Object achievement = Reflection.getMethod(Reflection.getOBCClass("CraftStatistic"), "getNMSAchievement").invoke(null, which);
+			Object achievement = Reflection.getMethod(Reflection.getOBCClass("CraftStatistic"), "getNMSAchievement", Achievement.class).invoke(null, which);
 			return achievementTooltip((String) Reflection.getField(Reflection.getNMSClass("Achievement"), "name").get(achievement));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -121,7 +121,7 @@ public class FancyMessage {
 			throw new IllegalArgumentException("That statistic requires an additional " + type + " parameter!");
 		}
 		try {
-			Object statistic = Reflection.getMethod(Reflection.getOBCClass("CraftStatistic"), "getNMSStatistic").invoke(null, which);
+			Object statistic = Reflection.getMethod(Reflection.getOBCClass("CraftStatistic"), "getNMSStatistic", Statistic.class).invoke(null, which);
 			return achievementTooltip((String) Reflection.getField(Reflection.getNMSClass("Statistic"), "name").get(statistic));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -138,7 +138,7 @@ public class FancyMessage {
 			throw new IllegalArgumentException("Wrong parameter type for that statistic - needs " + type + "!");
 		}
 		try {
-			Object statistic = Reflection.getMethod(Reflection.getOBCClass("CraftStatistic"), "getMaterialStatistic").invoke(null, which, item);
+			Object statistic = Reflection.getMethod(Reflection.getOBCClass("CraftStatistic"), "getMaterialStatistic", Statistic.class, Material.class).invoke(null, which, item);
 			return achievementTooltip((String) Reflection.getField(Reflection.getNMSClass("Statistic"), "name").get(statistic));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -155,7 +155,7 @@ public class FancyMessage {
 			throw new IllegalArgumentException("Wrong parameter type for that statistic - needs " + type + "!");
 		}
 		try {
-			Object statistic = Reflection.getMethod(Reflection.getOBCClass("CraftStatistic"), "getEntityStatistic").invoke(null, which, entity);
+			Object statistic = Reflection.getMethod(Reflection.getOBCClass("CraftStatistic"), "getEntityStatistic", Statistic.class, EntityType.class).invoke(null, which, entity);
 			return achievementTooltip((String) Reflection.getField(Reflection.getNMSClass("Statistic"), "name").get(statistic));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -171,7 +171,7 @@ public class FancyMessage {
 	public FancyMessage itemTooltip(final ItemStack itemStack) {
 		try {
 			Object nmsItem = Reflection.getMethod(Reflection.getOBCClass("inventory.CraftItemStack"), "asNMSCopy", ItemStack.class).invoke(null, itemStack);
-			return itemTooltip(Reflection.getMethod(Reflection.getNMSClass("ItemStack"), "save").invoke(nmsItem, Reflection.getNMSClass("NBTTagCompound").newInstance()).toString());
+			return itemTooltip(Reflection.getMethod(Reflection.getNMSClass("ItemStack"), "save", Reflection.getNMSClass("NBTTagCompound")).invoke(nmsItem, Reflection.getNMSClass("NBTTagCompound").newInstance()).toString());
 		} catch (Exception e) {
 			e.printStackTrace();
 			return this;
@@ -242,7 +242,7 @@ public class FancyMessage {
 		try {
 			Object handle = Reflection.getHandle(player);
 			Object connection = Reflection.getField(handle.getClass(), "playerConnection").get(handle);
-			Reflection.getMethod(connection.getClass(), "sendPacket").invoke(connection, createChatPacket(toJSONString()));
+			Reflection.getMethod(connection.getClass(), "sendPacket", Reflection.getNMSClass("Packet")).invoke(connection, createChatPacket(toJSONString()));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

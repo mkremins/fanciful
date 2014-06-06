@@ -2,6 +2,7 @@ package net.amoebaman.util;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,6 +26,7 @@ public class Reflection {
 			String name = Bukkit.getServer().getClass().getPackage().getName();
 			_versionString = name.substring(name.lastIndexOf('.') + 1) + ".";
 		}
+		
 		return _versionString;
 	}
 
@@ -94,37 +96,65 @@ public class Reflection {
 		}
 	}
 
+	private static final Map<Class<?>, Map<String, Field>> _loadedFields = new HashMap<Class<?>, Map<String, Field>>();
+	
 	public static Field getField(Class<?> clazz, String name) {
+		Map<String, Field> loaded;
+		if(!_loadedFields.containsKey(clazz)){
+			loaded = new HashMap<String, Field>();
+			_loadedFields.put(clazz, loaded);
+		}else{
+			loaded = _loadedFields.get(clazz);
+		}
+		if(loaded.containsKey(name)){
+			// If the field is loaded (or cached as not existing), return the relevant value, which might be null
+			return loaded.get(name);
+		}
 		try {
 			Field field = clazz.getDeclaredField(name);
 			field.setAccessible(true);
+			loaded.put(name, field);
 			return field;
 		} catch (Exception e) {
+			// Error loading
 			e.printStackTrace();
+			// Cache field as not existing
+			loaded.put(name, null);
 			return null;
 		}
 	}
 
+	/**
+	 * Contains loaded methods in a cache.
+	 * The map maps [types to maps of [method names to maps of [parameter types to method instances]]].
+	 */
+	private static final Map<Class<?>, Map<String, Map<ArrayWrapper<Class<?>>, Method>>> _loadedMethods = new HashMap<Class<?>, Map<String, Map<ArrayWrapper<Class<?>>, Method>>>();
+	
 	public static Method getMethod(Class<?> clazz, String name,
 			Class<?>... args) {
+		if(!_loadedMethods.containsKey(clazz)){
+			_loadedMethods.put(clazz, new HashMap<String, Map<ArrayWrapper<Class<?>>, Method>>());
+		}
+		
+		Map<String, Map<ArrayWrapper<Class<?>>, Method>> loadedMethodNames = _loadedMethods.get(clazz);
+		if(!loadedMethodNames.containsKey(name)){
+			loadedMethodNames.put(name, new HashMap<ArrayWrapper<Class<?>>, Method>());
+		}
+		
+		Map<ArrayWrapper<Class<?>>, Method> loadedSignatures = loadedMethodNames.get(name);
+		ArrayWrapper<Class<?>> wrappedArg = new ArrayWrapper<Class<?>>(args);
+		if(loadedSignatures.containsKey(wrappedArg)){
+			return loadedSignatures.get(wrappedArg);
+		}
+		
 		for (Method m : clazz.getMethods())
-			if (m.getName().equals(name) && (args.length == 0 || ClassListEqual(args, m.getParameterTypes()))) {
+			if (m.getName().equals(name) && Arrays.equals(args, m.getParameterTypes())) {
 				m.setAccessible(true);
+				loadedSignatures.put(wrappedArg, m);
 				return m;
 			}
+		loadedSignatures.put(wrappedArg, null);
 		return null;
-	}
-
-	public static boolean ClassListEqual(Class<?>[] l1, Class<?>[] l2) {
-		boolean equal = true;
-		if (l1.length != l2.length)
-			return false;
-		for (int i = 0; i < l1.length; i++)
-			if (l1[i] != l2[i]) {
-				equal = false;
-				break;
-			}
-		return equal;
 	}
 
 }
