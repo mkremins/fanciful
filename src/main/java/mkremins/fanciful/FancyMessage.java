@@ -28,17 +28,7 @@ public class FancyMessage {
 	private String jsonString;
 	private boolean dirty;
 	
-	private Class<?> nmsChatSerializer = Reflection.getNMSClass("ChatSerializer");
-	private Class<?> nmsTagCompound = Reflection.getNMSClass("NBTTagCompound");
-	private Class<?> nmsPacketPlayOutChat = Reflection.getNMSClass("PacketPlayOutChat");
-	private Class<?> nmsAchievement = Reflection.getNMSClass("Achievement");
-	private Class<?> nmsStatistic = Reflection.getNMSClass("Statistic");
-	private Class<?> nmsItemStack = Reflection.getNMSClass("ItemStack");
-	private Class<?> nmsChatBaseComponent = Reflection.getNMSClass("IChatBaseComponent");
-
-	private Class<?> obcStatistic = Reflection.getOBCClass("CraftStatistic");
-	private Class<?> obcItemStack = Reflection.getOBCClass("inventory.CraftItemStack");
-	private Constructor<?> nmsPacketPlayOutChatConstructor;
+	private static Constructor<?> nmsPacketPlayOutChatConstructor;
 	
 	public FancyMessage(final String firstPartText) {
 		messageParts = new ArrayList<MessagePart>();
@@ -46,11 +36,13 @@ public class FancyMessage {
 		jsonString = null;
 		dirty = false;
 		
-		try {
-			nmsPacketPlayOutChatConstructor = nmsPacketPlayOutChat.getDeclaredConstructor(nmsChatBaseComponent);
-			nmsPacketPlayOutChatConstructor.setAccessible(true);
-		} catch (Exception e) {
-			e.printStackTrace();
+		if(nmsPacketPlayOutChatConstructor == null){
+			try {
+				nmsPacketPlayOutChatConstructor = Reflection.getNMSClass("PacketPlayOutChat").getDeclaredConstructor(Reflection.getNMSClass("IChatBaseComponent"));
+				nmsPacketPlayOutChatConstructor.setAccessible(true);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -115,8 +107,8 @@ public class FancyMessage {
 	
 	public FancyMessage achievementTooltip(final Achievement which) {
 		try {
-			Object achievement = Reflection.getMethod(obcStatistic, "getNMSAchievement").invoke(null, which);
-			return achievementTooltip((String) Reflection.getField(nmsAchievement, "name").get(achievement));
+			Object achievement = Reflection.getMethod(Reflection.getOBCClass("CraftStatistic"), "getNMSAchievement").invoke(null, which);
+			return achievementTooltip((String) Reflection.getField(Reflection.getNMSClass("Achievement"), "name").get(achievement));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return this;
@@ -129,8 +121,8 @@ public class FancyMessage {
 			throw new IllegalArgumentException("That statistic requires an additional " + type + " parameter!");
 		}
 		try {
-			Object statistic = Reflection.getMethod(obcStatistic, "getNMSStatistic").invoke(null, which);
-			return achievementTooltip((String) Reflection.getField(nmsStatistic, "name").get(statistic));
+			Object statistic = Reflection.getMethod(Reflection.getOBCClass("CraftStatistic"), "getNMSStatistic").invoke(null, which);
+			return achievementTooltip((String) Reflection.getField(Reflection.getNMSClass("Statistic"), "name").get(statistic));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return this;
@@ -146,8 +138,8 @@ public class FancyMessage {
 			throw new IllegalArgumentException("Wrong parameter type for that statistic - needs " + type + "!");
 		}
 		try {
-			Object statistic = Reflection.getMethod(obcStatistic, "getMaterialStatistic").invoke(null, which, item);
-			return achievementTooltip((String) Reflection.getField(nmsStatistic, "name").get(statistic));
+			Object statistic = Reflection.getMethod(Reflection.getOBCClass("CraftStatistic"), "getMaterialStatistic").invoke(null, which, item);
+			return achievementTooltip((String) Reflection.getField(Reflection.getNMSClass("Statistic"), "name").get(statistic));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return this;
@@ -163,8 +155,8 @@ public class FancyMessage {
 			throw new IllegalArgumentException("Wrong parameter type for that statistic - needs " + type + "!");
 		}
 		try {
-			Object statistic = Reflection.getMethod(obcStatistic, "getEntityStatistic").invoke(null, which, entity);
-			return achievementTooltip((String) Reflection.getField(nmsStatistic, "name").get(statistic));
+			Object statistic = Reflection.getMethod(Reflection.getOBCClass("CraftStatistic"), "getEntityStatistic").invoke(null, which, entity);
+			return achievementTooltip((String) Reflection.getField(Reflection.getNMSClass("Statistic"), "name").get(statistic));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return this;
@@ -178,8 +170,8 @@ public class FancyMessage {
 	
 	public FancyMessage itemTooltip(final ItemStack itemStack) {
 		try {
-			Object nmsItem = Reflection.getMethod(obcItemStack, "asNMSCopy", ItemStack.class).invoke(null, itemStack);
-			return itemTooltip(Reflection.getMethod(nmsItemStack, "save").invoke(nmsItem, nmsTagCompound.newInstance()).toString());
+			Object nmsItem = Reflection.getMethod(Reflection.getOBCClass("inventory.CraftItemStack"), "asNMSCopy", ItemStack.class).invoke(null, itemStack);
+			return itemTooltip(Reflection.getMethod(Reflection.getNMSClass("ItemStack"), "save").invoke(nmsItem, Reflection.getNMSClass("NBTTagCompound").newInstance()).toString());
 		} catch (Exception e) {
 			e.printStackTrace();
 			return this;
@@ -262,7 +254,7 @@ public class FancyMessage {
 	private Object createChatPacket(String json) throws IllegalArgumentException, IllegalAccessException, InstantiationException, InvocationTargetException{
 		if(nmsChatSerializerGsonInstance == null){
 			// Find the field and its value, completely bypassing obfuscation
-			for(Field declaredField : nmsChatSerializer.getDeclaredFields()){
+			for(Field declaredField : Reflection.getNMSClass("ChatSerializer").getDeclaredFields()){
 				if(Modifier.isFinal(declaredField.getModifiers()) && Modifier.isStatic(declaredField.getModifiers()) && declaredField.getType() == net.minecraft.util.com.google.gson.Gson.class){
 					// We've found our field
 					declaredField.setAccessible(true);
@@ -274,7 +266,7 @@ public class FancyMessage {
 		
 		// Since the method is so simple, and all the obfuscated methods have the same name, it's easier to reimplement 'IChatBaseComponent a(String)' than to reflectively call it
 		// Of course, the implementation may change, but fuzzy matches might break with signature changes
-		Object serializedChatComponent = nmsChatSerializerGsonInstance.fromJson(json, nmsChatBaseComponent);
+		Object serializedChatComponent = nmsChatSerializerGsonInstance.fromJson(json, Reflection.getNMSClass("IChatBaseComponent"));
 		
 		return nmsPacketPlayOutChatConstructor.newInstance(serializedChatComponent);
 	}
