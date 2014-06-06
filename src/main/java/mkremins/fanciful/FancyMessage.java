@@ -1,6 +1,10 @@
 package mkremins.fanciful;
 
 import java.io.StringWriter;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,22 +34,28 @@ public class FancyMessage {
 	private Class<?> nmsAchievement = Reflection.getNMSClass("Achievement");
 	private Class<?> nmsStatistic = Reflection.getNMSClass("Statistic");
 	private Class<?> nmsItemStack = Reflection.getNMSClass("ItemStack");
+	private Class<?> nmsChatBaseComponent = Reflection.getNMSClass("IChatBaseComponent");
 
 	private Class<?> obcStatistic = Reflection.getOBCClass("CraftStatistic");
 	private Class<?> obcItemStack = Reflection.getOBCClass("inventory.CraftItemStack");
+	private Constructor<?> nmsPacketPlayOutChatConstructor;
 	
 	public FancyMessage(final String firstPartText) {
 		messageParts = new ArrayList<MessagePart>();
 		messageParts.add(new MessagePart(firstPartText));
 		jsonString = null;
 		dirty = false;
+		
+		try {
+			nmsPacketPlayOutChatConstructor = nmsPacketPlayOutChat.getDeclaredConstructor(nmsChatBaseComponent);
+			nmsPacketPlayOutChatConstructor.setAccessible(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public FancyMessage() {
-		messageParts = new ArrayList<MessagePart>();
-		messageParts.add(new MessagePart());
-		jsonString = null;
-		dirty = false;
+		this(null);
 	}
 	
 	public FancyMessage text(String text) {
@@ -240,12 +250,33 @@ public class FancyMessage {
 		try {
 			Object handle = Reflection.getHandle(player);
 			Object connection = Reflection.getField(handle.getClass(), "playerConnection").get(handle);
-			Object serialized = Reflection.getMethod(nmsChatSerializer, "a", String.class).invoke(null, toJSONString());
-			Object packet = nmsPacketPlayOutChat.getConstructor(Reflection.getNMSClass("IChatBaseComponent")).newInstance(serialized);
-			Reflection.getMethod(connection.getClass(), "sendPacket").invoke(connection, packet);
+			Reflection.getMethod(connection.getClass(), "sendPacket").invoke(connection, createChatPacket(toJSONString()));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	// The ChatSerializer's instance of Gson
+	private net.minecraft.util.com.google.gson.Gson nmsChatSerializerGsonInstance;
+	
+	private Object createChatPacket(String json) throws IllegalArgumentException, IllegalAccessException, InstantiationException, InvocationTargetException{
+		if(nmsChatSerializerGsonInstance == null){
+			// Find the field and its value, completely bypassing obfuscation
+			for(Field declaredField : nmsChatSerializer.getDeclaredFields()){
+				if(Modifier.isFinal(declaredField.getModifiers()) && Modifier.isStatic(declaredField.getModifiers()) && declaredField.getType() == net.minecraft.util.com.google.gson.Gson.class){
+					// We've found our field
+					declaredField.setAccessible(true);
+					nmsChatSerializerGsonInstance = (net.minecraft.util.com.google.gson.Gson)declaredField.get(null);
+					break;
+				}
+			}
+		}
+		
+		// Since the method is so simple, and all the obfuscated methods have the same name, it's easier to reimplement 'IChatBaseComponent a(String)' than to reflectively call it
+		// Of course, the implementation may change, but fuzzy matches might break with signature changes
+		Object serializedChatComponent = nmsChatSerializerGsonInstance.fromJson(json, nmsChatBaseComponent);
+		
+		return nmsPacketPlayOutChatConstructor.newInstance(serializedChatComponent);
 	}
 
 	public void send(CommandSender sender) {
