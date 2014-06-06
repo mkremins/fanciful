@@ -17,7 +17,7 @@ public class Reflection {
 	 * This is needed to bypass the JAR package name changing on each update.
 	 * @return The version string of the OBC and NMS packages, <em>including the trailing dot</em>.
 	 */
-	public static String getVersion() {
+	public synchronized static String getVersion() {
 		if(_versionString == null){
 			if(Bukkit.getServer() == null){
 				// The server hasn't started, static initializer call?
@@ -45,7 +45,7 @@ public class Reflection {
 	 * @param className The name of the class, excluding the package, within NMS.
 	 * @return The class instance representing the specified NMS class, or {@code null} if it could not be loaded.
 	 */
-	public static Class<?> getNMSClass(String className) {
+	public synchronized static Class<?> getNMSClass(String className) {
 		if(_loadedNMSClasses.containsKey(className)){
 			return _loadedNMSClasses.get(className);
 		}
@@ -69,7 +69,7 @@ public class Reflection {
 	 * @param className The name of the class, excluding the package, within OBC. This name may contain a subpackage name, such as {@code inventory.CraftItemStack}.
 	 * @return The class instance representing the specified OBC class, or {@code null} if it could not be loaded.
 	 */
-	public static Class<?> getOBCClass(String className) {
+	public synchronized static Class<?> getOBCClass(String className) {
 		if(_loadedOBCClasses.containsKey(className)){
 			return _loadedOBCClasses.get(className);
 		}
@@ -87,7 +87,7 @@ public class Reflection {
 		return clazz;
 	}
 
-	public static Object getHandle(Object obj) {
+	public synchronized static Object getHandle(Object obj) {
 		try {
 			return getMethod(obj.getClass(), "getHandle").invoke(obj);
 		} catch (Exception e) {
@@ -98,7 +98,7 @@ public class Reflection {
 
 	private static final Map<Class<?>, Map<String, Field>> _loadedFields = new HashMap<Class<?>, Map<String, Field>>();
 	
-	public static Field getField(Class<?> clazz, String name) {
+	public synchronized static Field getField(Class<?> clazz, String name) {
 		Map<String, Field> loaded;
 		if(!_loadedFields.containsKey(clazz)){
 			loaded = new HashMap<String, Field>();
@@ -130,7 +130,7 @@ public class Reflection {
 	 */
 	private static final Map<Class<?>, Map<String, Map<ArrayWrapper<Class<?>>, Method>>> _loadedMethods = new HashMap<Class<?>, Map<String, Map<ArrayWrapper<Class<?>>, Method>>>();
 	
-	public static Method getMethod(Class<?> clazz, String name,
+	public synchronized static Method getMethod(Class<?> clazz, String name,
 			Class<?>... args) {
 		if(!_loadedMethods.containsKey(clazz)){
 			_loadedMethods.put(clazz, new HashMap<String, Map<ArrayWrapper<Class<?>>, Method>>());
