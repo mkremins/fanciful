@@ -257,7 +257,7 @@ public class FancyMessage {
 		}
 	}
 
-	public void send(final Iterable<CommandSender> senders) {
+	public void send(final Iterable<? extends CommandSender> senders) {
 		for (final CommandSender sender : senders) {
 			send(sender);
 		}
