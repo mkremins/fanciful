@@ -67,6 +67,12 @@ public class FancyMessage {
 		this(null);
 	}
 	
+	/**
+	 * Sets the text of the current editing component to a value.
+	 * @param text The new text of the current editing component.
+	 * @return This builder instance.
+	 * @exception IllegalStateException If the text for the current editing component has already been set.
+	 */
 	public FancyMessage text(String text) {
 		MessagePart latest = latest();
 		if (latest.hasText()) {
@@ -77,6 +83,12 @@ public class FancyMessage {
 		return this;
 	}
 	
+	/**
+	 * Sets the color of the current editing component to a value.
+	 * @param color The new color of the current editing component.
+	 * @return This builder instance.
+	 * @exception IllegalArgumentException If the specified enumeration value does not represent a color.
+	 */
 	public FancyMessage color(final ChatColor color) {
 		if (!color.isColor()) {
 			throw new IllegalArgumentException(color.name() + " is not a color");
@@ -86,6 +98,12 @@ public class FancyMessage {
 		return this;
 	}
 	
+	/**
+	 * Sets the stylization of the current editing component.
+	 * @param styles The array of styles to apply to the editing component.
+	 * @return This builder instance.
+	 * @exception IllegalArgumentException If any of the enumeration values in the array do not represent formatters.
+	 */
 	public FancyMessage style(ChatColor... styles) {
 		for (final ChatColor style : styles) {
 			if (!style.isFormat()) {
@@ -97,31 +115,63 @@ public class FancyMessage {
 		return this;
 	}
 	
+	/**
+	 * Set the behavior of the current editing component to instruct the client to open a file on the client side filesystem when the currently edited part of the {@code FancyMessage} is clicked.
+	 * @param path The path of the file on the client filesystem.
+	 * @return This builder instance.
+	 */
 	public FancyMessage file(final String path) {
 		onClick("open_file", path);
 		return this;
 	}
 	
+	/**
+	 * Set the behavior of the current editing component to instruct the client to open a webpage in the client's web browser when the currently edited part of the {@code FancyMessage} is clicked.
+	 * @param url The URL of the page to open when the link is clicked.
+	 * @return This builder instance.
+	 */
 	public FancyMessage link(final String url) {
 		onClick("open_url", url);
 		return this;
 	}
 	
+	/**
+	 * Set the behavior of the current editing component to instruct the client to replace the chat input box content with the specified string when the currently edited part of the {@code FancyMessage} is clicked.
+	 * The client will not immediately send the command to the server to be executed unless the client player submits the command/chat message, usually with the enter key.
+	 * @param command The text to display in the chat bar of the client.
+	 * @return This builder instance.
+	 */
 	public FancyMessage suggest(final String command) {
 		onClick("suggest_command", command);
 		return this;
 	}
 	
+	/**
+	 * Set the behavior of the current editing component to instruct the client to send the specified string to the server as a chat message when the currently edited part of the {@code FancyMessage} is clicked.
+	 * The client <b>will</b> immediately send the command to the server to be executed when the editing component is clicked.
+	 * @param command The text to display in the chat bar of the client.
+	 * @return This builder instance.
+	 */
 	public FancyMessage command(final String command) {
 		onClick("run_command", command);
 		return this;
 	}
 	
+	/**
+	 * Set the behavior of the current editing component to display information about an achievement when the client hovers over the text.
+	 * @param name The name of the achievement to display, excluding the "achievement." prefix.
+	 * @return This builder instance.
+	 */
 	public FancyMessage achievementTooltip(final String name) {
 		onHover("show_achievement", "achievement." + name);
 		return this;
 	}
 	
+	/**
+	 * Set the behavior of the current editing component to display information about an achievement when the client hovers over the text.
+	 * @param which The achievement to display.
+	 * @return This builder instance.
+	 */
 	public FancyMessage achievementTooltip(final Achievement which) {
 		try {
 			Object achievement = Reflection.getMethod(Reflection.getOBCClass("CraftStatistic"), "getNMSAchievement", Achievement.class).invoke(null, which);
@@ -132,6 +182,12 @@ public class FancyMessage {
 		}
 	}
 	
+	/**
+	 * Set the behavior of the current editing component to display information about a parameterless statistic when the client hovers over the text.
+	 * @param which The statistic to display.
+	 * @return This builder instance.
+	 * @exception IllegalArgumentException If the statistic requires a parameter which was not supplied.
+	 */
 	public FancyMessage statisticTooltip(final Statistic which) {
 		Type type = which.getType();
 		if (type != Type.UNTYPED) {
@@ -146,6 +202,13 @@ public class FancyMessage {
 		}
 	}
 	
+	/**
+	 * Set the behavior of the current editing component to display information about a statistic parametered with a material when the client hovers over the text.
+	 * @param which The statistic to display.
+	 * @param item The sole material parameter to the statistic.
+	 * @return This builder instance.
+	 * @exception IllegalArgumentException If the statistic requires a parameter which was not supplied, or was supplied a parameter that was not required.
+	 */
 	public FancyMessage statisticTooltip(final Statistic which, Material item) {
 		Type type = which.getType();
 		if (type == Type.UNTYPED) {
@@ -163,6 +226,13 @@ public class FancyMessage {
 		}
 	}
 	
+	/**
+	 * Set the behavior of the current editing component to display information about a statistic parametered with an entity type when the client hovers over the text.
+	 * @param which The statistic to display.
+	 * @param entity The sole entity type parameter to the statistic.
+	 * @return This builder instance.
+	 * @exception IllegalArgumentException If the statistic requires a parameter which was not supplied, or was supplied a parameter that was not required.
+	 */
 	public FancyMessage statisticTooltip(final Statistic which, EntityType entity) {
 		Type type = which.getType();
 		if (type == Type.UNTYPED) {
@@ -180,11 +250,21 @@ public class FancyMessage {
 		}
 	}
 	
+	/**
+	 * Set the behavior of the current editing component to display information about an item when the client hovers over the text.
+	 * @param itemJSON A string representing the JSON-serialized NBT data tag of an {@link ItemStack}.
+	 * @return This builder instance.
+	 */
 	public FancyMessage itemTooltip(final String itemJSON) {
 		onHover("show_item", itemJSON);
 		return this;
 	}
 	
+	/**
+	 * Set the behavior of the current editing component to display information about an item when the client hovers over the text.
+	 * @param itemStack The stack for which to display information.
+	 * @return This builder instance.
+	 */
 	public FancyMessage itemTooltip(final ItemStack itemStack) {
 		try {
 			Object nmsItem = Reflection.getMethod(Reflection.getOBCClass("inventory.CraftItemStack"), "asNMSCopy", ItemStack.class).invoke(null, itemStack);
@@ -195,14 +275,29 @@ public class FancyMessage {
 		}
 	}
 	
+	/**
+	 * Set the behavior of the current editing component to display raw text when the client hovers over the text.
+	 * @param text The text, which supports newlines, which will be displayed to the client upon hovering.
+	 * @return This builder instance.
+	 */
 	public FancyMessage tooltip(final String text) {
 		return tooltip(text.split("\\n"));
 	}
 	
+	/**
+	 * Set the behavior of the current editing component to display raw text when the client hovers over the text.
+	 * @param lines The lines of text which will be displayed to the client upon hovering.
+	 * @return This builder instance.
+	 */
 	public FancyMessage tooltip(final List<String> lines) {
-		return tooltip((String[])lines.toArray());
+		return tooltip(lines.toArray(new String[0]));
 	}
 	
+	/**
+	 * Set the behavior of the current editing component to display raw text when the client hovers over the text.
+	 * @param lines The lines of text which will be displayed to the client upon hovering.
+	 * @return This builder instance.
+	 */
 	public FancyMessage tooltip(final String... lines) {
 		if (lines.length == 1) {
 			onHover("show_text", lines[0]);
@@ -212,6 +307,12 @@ public class FancyMessage {
 		return this;
 	}
 	
+	/**
+	 * Terminate construction of the current editing component, and begin construction of a new message component.
+	 * After a successful call to this method, all setter methods will refer to a new message component, created as a result of the call to this method.
+	 * @param obj The text which will populate the new message component.
+	 * @return This builder instance.
+	 */
 	public FancyMessage then(final Object obj) {
 		if (!latest().hasText()) {
 			throw new IllegalStateException("previous message part has no text");
@@ -221,6 +322,11 @@ public class FancyMessage {
 		return this;
 	}
 	
+	/**
+	 * Terminate construction of the current editing component, and begin construction of a new message component.
+	 * After a successful call to this method, all setter methods will refer to a new message component, created as a result of the call to this method.
+	 * @return This builder instance.
+	 */
 	public FancyMessage then() {
 		if (!latest().hasText()) {
 			throw new IllegalStateException("previous message part has no text");
@@ -230,6 +336,11 @@ public class FancyMessage {
 		return this;
 	}
 	
+	/**
+	 * Serialize this fancy message, converting it into syntactically-valid JSON using a {@link JsonWriter}.
+	 * This JSON should be compatible with vanilla formatter commands such as {@code /tellraw}.
+	 * @return The JSON string representing this object.
+	 */
 	public String toJSONString() {
 		if (!dirty && jsonString != null) {
 			return jsonString;
@@ -255,6 +366,10 @@ public class FancyMessage {
 		return jsonString;
 	}
 	
+	/**
+	 * Sends this message to a player. The player will receive the fully-fledged formatted display of this message.
+	 * @param player The player who will receive the message.
+	 */
 	public void send(Player player){
 		try {
 			Object handle = Reflection.getHandle(player);
@@ -288,6 +403,13 @@ public class FancyMessage {
 		return nmsPacketPlayOutChatConstructor.newInstance(serializedChatComponent);
 	}
 
+	/**
+	 * Sends this message to a command sender.
+	 * If the sender is a player, they will receive the fully-fledged formatted display of this message.
+	 * Otherwise, they will receive a version of this message with less formatting.
+	 * @param sender The command sender who will receive the message.
+	 * @see #toOldMessageFormat()
+	 */
 	public void send(CommandSender sender) {
 		if (sender instanceof Player) {
 			send((Player) sender);
@@ -296,16 +418,41 @@ public class FancyMessage {
 		}
 	}
 
+	/**
+	 * Sends this message to multiple command senders.
+	 * @param senders The command senders who will receive the message.
+	 * @see #send(CommandSender)
+	 */
 	public void send(final Iterable<? extends CommandSender> senders) {
 		for (final CommandSender sender : senders) {
 			send(sender);
 		}
 	}
 	
+	/**
+	 * Convert this message to a human-readable string with limited formatting.
+	 * This method is used to send this message to clients without JSON formatting support.
+	 * <p>
+	 * Serialization of this message by using this message will include (in this order for each message part):
+	 * <ol>
+	 * <li>The color of each message part.</li>
+	 * <li>The applicable stylizations for each message part.</li>
+	 * <li>The core text of the message part.</li>
+	 * </ol>
+	 * The primary omissions are tooltips and clickable actions. Consequently, this method should be used only as a last resort.
+	 * </p>
+	 * <p>
+	 * Color and formatting can be removed from the returned string by using {@link ChatColor#stripColor(String)}.</p>
+	 * @return A human-readable string representing limited formatting in addition to the core text of this message.
+	 */
 	public String toOldMessageFormat() {
 		StringBuilder result = new StringBuilder();
 		for (MessagePart part : messageParts) {
-			result.append(part.color).append(part.text);
+			result.append(part.color == null ? "" : part.color);
+			for(ChatColor formatSpecifier : part.styles){
+				result.append(formatSpecifier);
+			}
+			result.append(part.text);
 		}
 		return result.toString();
 	}
