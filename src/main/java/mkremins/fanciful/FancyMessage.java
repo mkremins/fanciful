@@ -281,16 +281,23 @@ public class FancyMessage {
 	 * @return This builder instance.
 	 */
 	public FancyMessage tooltip(final String text) {
-		return tooltip(text.split("\\n"));
+		onHover("show_text", text);
+		return this;
 	}
 	
 	/**
 	 * Set the behavior of the current editing component to display raw text when the client hovers over the text.
-	 * @param lines The lines of text which will be displayed to the client upon hovering.
+	 * @param lines The lines of text which will be displayed to the client upon hovering. The iteration order of this object will be the order in which the lines of the tooltip are created.
 	 * @return This builder instance.
 	 */
-	public FancyMessage tooltip(final List<String> lines) {
-		return tooltip(lines.toArray(new String[0]));
+	public FancyMessage tooltip(final Iterable<String> lines) {
+		StringBuilder builder = new StringBuilder();
+		for(String object : lines){
+			builder.append(object);
+			builder.append('\n');
+		}
+		tooltip(builder.toString());
+		return this;
 	}
 	
 	/**
@@ -299,11 +306,12 @@ public class FancyMessage {
 	 * @return This builder instance.
 	 */
 	public FancyMessage tooltip(final String... lines) {
-		if (lines.length == 1) {
-			onHover("show_text", lines[0]);
-		} else {
-			itemTooltip(makeMultilineTooltip(lines));
+		StringBuilder builder = new StringBuilder();
+		for(int i = 0; i < lines.length; i++){
+			builder.append(lines[i]);
+			builder.append('\n');
 		}
+		tooltip(builder.toString());
 		return this;
 	}
 	
@@ -459,26 +467,6 @@ public class FancyMessage {
 	
 	private MessagePart latest() {
 		return messageParts.get(messageParts.size() - 1);
-	}
-	
-	private String makeMultilineTooltip(final String[] lines) {
-		StringWriter string = new StringWriter();
-		JsonWriter json = new JsonWriter(string);
-		try {
-			json.beginObject().name("id").value(1);
-			json.name("tag").beginObject().name("display").beginObject();
-			json.name("Name").value("\\u00A7f" + lines[0].replace("\"", "\\\""));
-			json.name("Lore").beginArray();
-			for (int i = 1; i < lines.length; i++) {
-				final String line = lines[i];
-				json.value(line.isEmpty() ? " " : line.replace("\"", "\\\""));
-			}
-			json.endArray().endObject().endObject().endObject();
-			json.close();
-		} catch (Exception e) {
-			throw new RuntimeException("invalid tooltip");
-		}
-		return string.toString();
 	}
 	
 	private void onClick(final String name, final String data) {
