@@ -159,6 +159,7 @@ public class FancyMessage {
 	
 	/**
 	 * Set the behavior of the current editing component to display information about an achievement when the client hovers over the text.
+	 * <p>Tooltips inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
 	 * @param name The name of the achievement to display, excluding the "achievement." prefix.
 	 * @return This builder instance.
 	 */
@@ -169,6 +170,7 @@ public class FancyMessage {
 	
 	/**
 	 * Set the behavior of the current editing component to display information about an achievement when the client hovers over the text.
+	 * <p>Tooltips inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
 	 * @param which The achievement to display.
 	 * @return This builder instance.
 	 */
@@ -184,6 +186,7 @@ public class FancyMessage {
 	
 	/**
 	 * Set the behavior of the current editing component to display information about a parameterless statistic when the client hovers over the text.
+	 * <p>Tooltips inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
 	 * @param which The statistic to display.
 	 * @return This builder instance.
 	 * @exception IllegalArgumentException If the statistic requires a parameter which was not supplied.
@@ -204,6 +207,7 @@ public class FancyMessage {
 	
 	/**
 	 * Set the behavior of the current editing component to display information about a statistic parametered with a material when the client hovers over the text.
+	 * <p>Tooltips inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
 	 * @param which The statistic to display.
 	 * @param item The sole material parameter to the statistic.
 	 * @return This builder instance.
@@ -228,6 +232,7 @@ public class FancyMessage {
 	
 	/**
 	 * Set the behavior of the current editing component to display information about a statistic parametered with an entity type when the client hovers over the text.
+	 * <p>Tooltips inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
 	 * @param which The statistic to display.
 	 * @param entity The sole entity type parameter to the statistic.
 	 * @return This builder instance.
@@ -252,6 +257,7 @@ public class FancyMessage {
 	
 	/**
 	 * Set the behavior of the current editing component to display information about an item when the client hovers over the text.
+	 * <p>Tooltips inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
 	 * @param itemJSON A string representing the JSON-serialized NBT data tag of an {@link ItemStack}.
 	 * @return This builder instance.
 	 */
@@ -262,6 +268,7 @@ public class FancyMessage {
 	
 	/**
 	 * Set the behavior of the current editing component to display information about an item when the client hovers over the text.
+	 * <p>Tooltips inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
 	 * @param itemStack The stack for which to display information.
 	 * @return This builder instance.
 	 */
@@ -277,6 +284,7 @@ public class FancyMessage {
 	
 	/**
 	 * Set the behavior of the current editing component to display raw text when the client hovers over the text.
+	 * <p>Tooltips inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
 	 * @param text The text, which supports newlines, which will be displayed to the client upon hovering.
 	 * @return This builder instance.
 	 */
@@ -287,6 +295,7 @@ public class FancyMessage {
 	
 	/**
 	 * Set the behavior of the current editing component to display raw text when the client hovers over the text.
+	 * <p>Tooltips inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
 	 * @param lines The lines of text which will be displayed to the client upon hovering. The iteration order of this object will be the order in which the lines of the tooltip are created.
 	 * @return This builder instance.
 	 */
@@ -302,6 +311,7 @@ public class FancyMessage {
 	
 	/**
 	 * Set the behavior of the current editing component to display raw text when the client hovers over the text.
+	 * <p>Tooltips inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
 	 * @param lines The lines of text which will be displayed to the client upon hovering.
 	 * @return This builder instance.
 	 */
