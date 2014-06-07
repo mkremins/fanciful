@@ -33,13 +33,24 @@ import org.bukkit.inventory.ItemStack;
  * optionally initializing it with text. Further property-setting method calls will affect that editing component.
  * </p>
  */
-public class FancyMessage implements JsonRepresentedObject {
+public class FancyMessage implements JsonRepresentedObject, Cloneable {
 	
-	private final List<MessagePart> messageParts;
+	private List<MessagePart> messageParts;
 	private String jsonString;
 	private boolean dirty;
 	
 	private static Constructor<?> nmsPacketPlayOutChatConstructor;
+	
+	public FancyMessage clone() throws CloneNotSupportedException{
+		FancyMessage instance = (FancyMessage)super.clone();
+		instance.messageParts = new ArrayList<MessagePart>(messageParts.size());
+		for(int i = 0; i < messageParts.size(); i++){
+			instance.messageParts.add(i, messageParts.get(i).clone());
+		}
+		instance.dirty = false;
+		instance.jsonString = null;
+		return instance;
+	}
 	
 	/**
 	 * Creates a JSON message with text.

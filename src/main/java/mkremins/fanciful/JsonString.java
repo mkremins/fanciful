@@ -18,7 +18,11 @@ final class JsonString implements JsonRepresentedObject {
 	}
 	
 	public void writeJson(JsonWriter writer) throws IOException {
-		writer.value(_value);
+		writer.value(getValue());
+	}
+	
+	public String getValue(){
+		return _value;
 	}
 
 }

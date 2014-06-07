@@ -7,7 +7,7 @@ import org.bukkit.craftbukkit.libs.com.google.gson.stream.JsonWriter;
 /**
  * Internal class: Represents a component of a JSON-serializable {@link FancyMessage}.
  */
-final class MessagePart implements JsonRepresentedObject {
+final class MessagePart implements JsonRepresentedObject, Cloneable {
 
 	ChatColor color = ChatColor.WHITE;
 	ArrayList<ChatColor> styles = new ArrayList<ChatColor>();
@@ -24,6 +24,19 @@ final class MessagePart implements JsonRepresentedObject {
 	
 	boolean hasText() {
 		return text != null;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public MessagePart clone() throws CloneNotSupportedException{
+		MessagePart obj = (MessagePart)super.clone();
+		obj.styles = (ArrayList<ChatColor>)styles.clone();
+		if(hoverActionData instanceof JsonString){
+			obj.hoverActionData = new JsonString(((JsonString)hoverActionData).getValue());
+		}else if(hoverActionData instanceof FancyMessage){
+			obj.hoverActionData = ((FancyMessage)hoverActionData).clone();
+		}
+		return obj;
+		
 	}
 
 	public void writeJson(JsonWriter json) {
