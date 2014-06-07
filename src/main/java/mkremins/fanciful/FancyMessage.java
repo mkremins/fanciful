@@ -31,6 +31,10 @@ public class FancyMessage {
 	private static Constructor<?> nmsPacketPlayOutChatConstructor;
 	
 	public FancyMessage(final String firstPartText) {
+		this(TextualComponent.createStringLiteral(firstPartText));
+	}
+	
+	public FancyMessage(final TextualComponent firstPartText) {
 		messageParts = new ArrayList<MessagePart>();
 		messageParts.add(new MessagePart(firstPartText));
 		jsonString = null;
@@ -47,10 +51,20 @@ public class FancyMessage {
 	}
 	
 	public FancyMessage() {
-		this(null);
+		this((TextualComponent)null);
 	}
 	
 	public FancyMessage text(String text) {
+		MessagePart latest = latest();
+		if (latest.hasText()) {
+			throw new IllegalStateException("text for this message part is already set");
+		}
+		latest.text = TextualComponent.createStringLiteral(text);
+		dirty = true;
+		return this;
+	}
+	
+	public FancyMessage text(TextualComponent text) {
 		MessagePart latest = latest();
 		if (latest.hasText()) {
 			throw new IllegalStateException("text for this message part is already set");
@@ -195,11 +209,20 @@ public class FancyMessage {
 		return this;
 	}
 	
-	public FancyMessage then(final Object obj) {
+	public FancyMessage then(final String text) {
 		if (!latest().hasText()) {
 			throw new IllegalStateException("previous message part has no text");
 		}
-		messageParts.add(new MessagePart(obj.toString()));
+		messageParts.add(new MessagePart(TextualComponent.createStringLiteral(text)));
+		dirty = true;
+		return this;
+	}
+	
+	public FancyMessage then(final TextualComponent text) {
+		if (!latest().hasText()) {
+			throw new IllegalStateException("previous message part has no text");
+		}
+		messageParts.add(new MessagePart(text));
 		dirty = true;
 		return this;
 	}
