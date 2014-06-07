@@ -22,6 +22,16 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+/**
+ * Represents a formattable message. Such messages can use elements such as colors, formatting codes, hover and click data, and other features provided by the vanilla Minecraft <a href="http://minecraft.gamepedia.com/Tellraw#Raw_JSON_Text">JSON message formatter</a>.
+ * This class allows plugins to emulate the functionality of the vanilla minecraft <a href="http://minecraft.gamepedia.com/Commands#tellraw">tellraw command</a>.
+ * <p>
+ * This class follows the builder pattern, allowing for method chaining.
+ * It is set up such that invocations of property-setting methods will affect the current editing component,
+ * and a call to {@link #then()} or {@link #then(Object)} will append a new editing component to the end of the message,
+ * optionally initializing it with text. Further property-setting method calls will affect that editing component.
+ * </p>
+ */
 public class FancyMessage {
 	
 	private final List<MessagePart> messageParts;
@@ -30,6 +40,10 @@ public class FancyMessage {
 	
 	private static Constructor<?> nmsPacketPlayOutChatConstructor;
 	
+	/**
+	 * Creates a JSON message with text.
+	 * @param firstPartText The existing text in the message.
+	 */
 	public FancyMessage(final String firstPartText) {
 		messageParts = new ArrayList<MessagePart>();
 		messageParts.add(new MessagePart(firstPartText));
@@ -46,6 +60,9 @@ public class FancyMessage {
 		}
 	}
 	
+	/**
+	 * Creates a JSON message without text.
+	 */
 	public FancyMessage() {
 		this(null);
 	}
