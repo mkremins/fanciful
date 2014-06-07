@@ -1,5 +1,6 @@
 package mkremins.fanciful;
 
+import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -32,7 +33,7 @@ import org.bukkit.inventory.ItemStack;
  * optionally initializing it with text. Further property-setting method calls will affect that editing component.
  * </p>
  */
-public class FancyMessage {
+public class FancyMessage implements JsonRepresentedObject {
 	
 	private final List<MessagePart> messageParts;
 	private String jsonString;
@@ -354,6 +355,18 @@ public class FancyMessage {
 		return this;
 	}
 	
+	public void writeJson(JsonWriter writer) throws IOException{
+		if (messageParts.size() == 1) {
+			latest().writeJson(writer);
+		} else {
+			writer.beginObject().name("text").value("").name("extra").beginArray();
+			for (final MessagePart part : messageParts) {
+				part.writeJson(writer);
+			}
+			writer.endArray().endObject();
+		}
+	}
+	
 	/**
 	 * Serialize this fancy message, converting it into syntactically-valid JSON using a {@link JsonWriter}.
 	 * This JSON should be compatible with vanilla formatter commands such as {@code /tellraw}.
@@ -366,16 +379,8 @@ public class FancyMessage {
 		StringWriter string = new StringWriter();
 		JsonWriter json = new JsonWriter(string);
 		try {
-			if (messageParts.size() == 1) {
-				latest().writeJson(json);
-			} else {
-				json.beginObject().name("text").value("").name("extra").beginArray();
-				for (final MessagePart part : messageParts) {
-					part.writeJson(json);
-				}
-				json.endArray().endObject();
-				json.close();
-			}
+			writeJson(json);
+			json.close();
 		} catch (Exception e) {
 			throw new RuntimeException("invalid message");
 		}

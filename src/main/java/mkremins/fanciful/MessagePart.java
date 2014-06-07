@@ -7,7 +7,7 @@ import org.bukkit.craftbukkit.libs.com.google.gson.stream.JsonWriter;
 /**
  * Internal class: Represents a component of a JSON-serializable {@link FancyMessage}.
  */
-final class MessagePart {
+final class MessagePart implements JsonRepresentedObject {
 
 	ChatColor color = ChatColor.WHITE;
 	ArrayList<ChatColor> styles = new ArrayList<ChatColor>();
@@ -25,7 +25,7 @@ final class MessagePart {
 		return text != null;
 	}
 
-	JsonWriter writeJson(JsonWriter json) {
+	public void writeJson(JsonWriter json) {
 		try {
 			json.beginObject().name("text").value(text);
 			json.name("color").value(color.name().toLowerCase());
@@ -55,10 +55,9 @@ final class MessagePart {
 					.name("value").value(hoverActionData)
 					.endObject();
 			}
-			return json.endObject();
+			json.endObject();
 		} catch(Exception e){
 			e.printStackTrace();
-			return json;
 		}
 	}
 
