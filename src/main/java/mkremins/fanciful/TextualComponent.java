@@ -12,7 +12,7 @@ import com.google.common.base.Preconditions;
  * This can be used to not only represent string literals in a JSON message,
  * but also to represent localized strings and other text values.
  */
-public abstract class TextualComponent {
+public abstract class TextualComponent implements Cloneable{
 
 	/**
 	 * Get the JSON key used to represent text components of this type.
@@ -23,6 +23,13 @@ public abstract class TextualComponent {
 	 * Get the string value of this text component instance which will be included in JSON.
 	 */
 	public abstract String getValue();
+	
+	/**
+	 * Clones a textual component instance.
+	 * The returned object should not reference this textual component instance, but should maintain the same key and value.
+	 */
+	@Override
+	public abstract TextualComponent clone() throws CloneNotSupportedException;
 	
 	/**
 	 * Writes the text data represented by this textual component to the specified JSON writer object.
@@ -67,6 +74,12 @@ public abstract class TextualComponent {
 
 		private String _key;
 		private String _value;
+		
+		@Override
+		public TextualComponent clone() throws CloneNotSupportedException {
+			// Since this is a private and final class, we can just reinstantiate this class instead of casting super.clone
+			return new ArbitraryTextTypeComponent(getKey(), getValue());
+		}
 		
 	}
 	
