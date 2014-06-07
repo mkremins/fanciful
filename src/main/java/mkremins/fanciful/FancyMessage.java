@@ -327,6 +327,24 @@ public class FancyMessage implements JsonRepresentedObject {
 	}
 	
 	/**
+	 * Set the behavior of the current editing component to display formatted text when the client hovers over the text.
+	 * <p>Tooltips inherit display characteristics, such as color and styles, from the message component on which they are applied unless the tooltip formatting overrides them.</p>
+	 * @param text The formatted text which will be displayed to the client upon hovering.
+	 * @return This builder instance.
+	 */
+	public FancyMessage tooltip(FancyMessage text){
+		for(MessagePart component : text.messageParts){
+			if(component.clickActionData != null && component.clickActionName != null){
+				throw new IllegalArgumentException("The tooltip text cannot have click data.");
+			}else if(component.hoverActionData != null && component.hoverActionName != null){
+				throw new IllegalArgumentException("The tooltip text cannot have a tooltip.");
+			}
+		}
+		onHover("show_text", text);
+		return this;
+	}
+	
+	/**
 	 * Terminate construction of the current editing component, and begin construction of a new message component.
 	 * After a successful call to this method, all setter methods will refer to a new message component, created as a result of the call to this method.
 	 * @param obj The text which will populate the new message component.
