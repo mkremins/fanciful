@@ -31,7 +31,7 @@ public class FancyMessage {
 	private static Constructor<?> nmsPacketPlayOutChatConstructor;
 	
 	public FancyMessage(final String firstPartText) {
-		this(TextualComponent.createStringLiteral(firstPartText));
+		this(TextualComponent.fromString(firstPartText));
 	}
 	
 	public FancyMessage(final TextualComponent firstPartText) {
@@ -59,7 +59,7 @@ public class FancyMessage {
 		if (latest.hasText()) {
 			throw new IllegalStateException("text for this message part is already set");
 		}
-		latest.text = TextualComponent.createStringLiteral(text);
+		latest.text = TextualComponent.fromString(text);
 		dirty = true;
 		return this;
 	}
@@ -213,7 +213,7 @@ public class FancyMessage {
 		if (!latest().hasText()) {
 			throw new IllegalStateException("previous message part has no text");
 		}
-		messageParts.add(new MessagePart(TextualComponent.createStringLiteral(text)));
+		messageParts.add(new MessagePart(TextualComponent.fromString(text)));
 		dirty = true;
 		return this;
 	}
