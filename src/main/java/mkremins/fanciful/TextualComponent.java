@@ -78,4 +78,18 @@ public abstract class TextualComponent {
 	public static TextualComponent createStringLiteral(String textValue){
 		return new ArbitraryTextTypeComponent("text", textValue);
 	}
+	
+
+	/**
+	 * Create a textual component representing a localized string.
+	 * The client will see this text component as their localized version of the specified string <em>key</em>, which can be overridden by a resource pack.
+	 * <p>
+	 * If the specified translation key is not present on the client resource pack, the translation key will be displayed as a string literal to the client.
+	 * </p>
+	 * @param translateKey The string key which maps to localized text.
+	 * @return The text component representing the specified localized text.
+	 */
+	public static TextualComponent createTranslateString(String translateKey){
+		return new ArbitraryTextTypeComponent("translate", translateKey);
+	}
 }
