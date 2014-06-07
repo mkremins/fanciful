@@ -23,7 +23,7 @@ final class MessagePart implements JsonRepresentedObject, Cloneable {
 	MessagePart() {}
 	
 	boolean hasText() {
-		return text != null;
+		return text != null && !text.isEmpty();
 	}
 	
 	@SuppressWarnings("unchecked")

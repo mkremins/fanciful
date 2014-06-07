@@ -372,7 +372,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable {
 					}else if(component.hoverActionData != null && component.hoverActionName != null){
 						throw new IllegalArgumentException("The tooltip text cannot have a tooltip.");
 					}
-					if(component.hasText() && !component.text.isEmpty()){
+					if(component.hasText()){
 						result.messageParts.add(component.clone());
 					}
 				}
