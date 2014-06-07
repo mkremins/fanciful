@@ -165,7 +165,7 @@ public class FancyMessage implements JsonRepresentedObject {
 	 * @return This builder instance.
 	 */
 	public FancyMessage achievementTooltip(final String name) {
-		onHover("show_achievement", "achievement." + name);
+		onHover("show_achievement", new JsonString("achievement." + name));
 		return this;
 	}
 	
@@ -263,7 +263,7 @@ public class FancyMessage implements JsonRepresentedObject {
 	 * @return This builder instance.
 	 */
 	public FancyMessage itemTooltip(final String itemJSON) {
-		onHover("show_item", itemJSON);
+		onHover("show_item", new JsonString(itemJSON)); // Seems a bit hacky, considering we have a JSON object as a parameter
 		return this;
 	}
 	
@@ -290,7 +290,7 @@ public class FancyMessage implements JsonRepresentedObject {
 	 * @return This builder instance.
 	 */
 	public FancyMessage tooltip(final String text) {
-		onHover("show_text", text);
+		onHover("show_text", new JsonString(text));
 		return this;
 	}
 	
@@ -491,7 +491,7 @@ public class FancyMessage implements JsonRepresentedObject {
 		dirty = true;
 	}
 	
-	private void onHover(final String name, final String data) {
+	private void onHover(final String name, final JsonRepresentedObject data) {
 		final MessagePart latest = latest();
 		latest.hoverActionName = name;
 		latest.hoverActionData = data;

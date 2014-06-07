@@ -12,7 +12,8 @@ final class MessagePart implements JsonRepresentedObject {
 	ChatColor color = ChatColor.WHITE;
 	ArrayList<ChatColor> styles = new ArrayList<ChatColor>();
 	String clickActionName = null, clickActionData = null,
-		   hoverActionName = null, hoverActionData = null;
+		   hoverActionName = null;
+	JsonRepresentedObject hoverActionData = null;
 	String text = null;
 
 	MessagePart(final String text) {
@@ -52,8 +53,9 @@ final class MessagePart implements JsonRepresentedObject {
 				json.name("hoverEvent")
 					.beginObject()
 					.name("action").value(hoverActionName)
-					.name("value").value(hoverActionData)
-					.endObject();
+					.name("value");
+					hoverActionData.writeJson(json);
+					json.endObject();
 			}
 			json.endObject();
 		} catch(Exception e){
