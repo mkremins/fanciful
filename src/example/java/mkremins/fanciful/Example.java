@@ -47,7 +47,7 @@ public final class Example {
 			.color(RED)
 			.style(ITALIC)
 		.then(" changed ").color(DARK_RED)
-		.then(blocksEdited).color(AQUA)
+		.then(Integer.toString(blocksEdited)).color(AQUA)
 		.then(" blocks. ").color(DARK_RED)
 		.then("Roll back?")
 			.color(GOLD)
