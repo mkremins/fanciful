@@ -3,6 +3,10 @@ package mkremins.fanciful;
 import static org.bukkit.ChatColor.*;
 import mkremins.fanciful.FancyMessage;
 
+/**
+ * An example class demonstrating some of Fanciful's functionality.
+ * This is not a plugin, but a program.
+ */
 public final class Example {
 	
 	public static void main(String[] args) {

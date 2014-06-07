@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import org.bukkit.ChatColor;
 import org.bukkit.craftbukkit.libs.com.google.gson.stream.JsonWriter;
 
+/**
+ * Internal class: Represents a component of a JSON-serializable {@link FancyMessage}.
+ */
 final class MessagePart {
 
 	ChatColor color = ChatColor.WHITE;
