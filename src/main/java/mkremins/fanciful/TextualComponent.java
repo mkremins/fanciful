@@ -1,11 +1,12 @@
 package mkremins.fanciful;
 
 import java.io.IOException;
-import java.io.StringWriter;
+import java.util.Map;
 
 import org.bukkit.craftbukkit.libs.com.google.gson.stream.JsonWriter;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 
 /**
  * Represents a textual component of a message part.
@@ -20,11 +21,6 @@ public abstract class TextualComponent implements Cloneable{
 	public abstract String getKey();
 	
 	/**
-	 * Get the string value of this text component instance which will be included in JSON.
-	 */
-	public abstract String getValue();
-	
-	/**
 	 * Clones a textual component instance.
 	 * The returned object should not reference this textual component instance, but should maintain the same key and value.
 	 */
@@ -37,9 +33,7 @@ public abstract class TextualComponent implements Cloneable{
 	 * @param writer The object to which to write the JSON data.
 	 * @throws IOException If an error occurs while writing to the stream.
 	 */
-	public void writeJson(JsonWriter writer) throws IOException{
-		writer.name(getKey()).value(getValue());
-	}
+	public abstract void writeJson(JsonWriter writer) throws IOException;
 	
 	/**
 	 * Internal class used to represent all types of text components.
@@ -62,7 +56,6 @@ public abstract class TextualComponent implements Cloneable{
 			_key = key;
 		}
 		
-		@Override
 		public String getValue() {
 			return _value;
 		}
@@ -80,7 +73,61 @@ public abstract class TextualComponent implements Cloneable{
 			// Since this is a private and final class, we can just reinstantiate this class instead of casting super.clone
 			return new ArbitraryTextTypeComponent(getKey(), getValue());
 		}
+
+		@Override
+		public void writeJson(JsonWriter writer) throws IOException {
+			writer.name(getKey()).value(getValue());
+		}
+	}
+	
+	/**
+	 * Internal class used to represent a text component with a nested JSON value.
+	 * Exception validating done is on keys and values.
+	 */
+	private static final class ComplexTextTypeComponent extends TextualComponent{
+
+		public ComplexTextTypeComponent(String key, Map<String, String> values){
+			setKey(key);
+			setValue(values);
+		}
 		
+		@Override
+		public String getKey() {
+			return _key;
+		}
+
+		public void setKey(String key) {
+			Preconditions.checkArgument(key != null && !key.isEmpty(), "The key must be specified.");
+			_key = key;
+		}
+		
+		public Map<String, String> getValue() {
+			return _value;
+		}
+
+		public void setValue(Map<String, String> value) {
+			Preconditions.checkArgument(value != null, "The value must be specified.");
+			_value = value;
+		}
+
+		private String _key;
+		private Map<String, String> _value;
+		
+		@Override
+		public TextualComponent clone() throws CloneNotSupportedException {
+			// Since this is a private and final class, we can just reinstantiate this class instead of casting super.clone
+			return new ComplexTextTypeComponent(getKey(), getValue());
+		}
+
+		@Override
+		public void writeJson(JsonWriter writer) throws IOException {
+			writer.name(getKey());
+			writer.beginObject();
+			for(Map.Entry<String, String> jsonPair : _value.entrySet()){
+				writer.name(jsonPair.getKey()).value(jsonPair.getValue());
+			}
+			writer.endObject();
+		}
 	}
 	
 	/**
@@ -138,18 +185,10 @@ public abstract class TextualComponent implements Cloneable{
 	public static TextualComponent objectiveScore(String playerName, String scoreboardObjective){
 		throwUnsupportedSnapshot(); // Remove this line when the feature is released to non-snapshot versions, in addition to updating ALL THE OVERLOADS documentation accordingly
 		
-		StringWriter string = new StringWriter();
-		JsonWriter json = new JsonWriter(string);
-		// Write the JSON string, required for this component, out
-		try {
-			json.beginObject().name("name").value(playerName)
-			.name("objective").value(scoreboardObjective).endObject();
-			json.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
-		return new ArbitraryTextTypeComponent("score", string.toString());
+		return new ComplexTextTypeComponent("score", ImmutableMap.<String, String>builder()
+				.put("name", playerName)
+				.put("objective", scoreboardObjective)
+				.build());
 	}
 	
 	/**
