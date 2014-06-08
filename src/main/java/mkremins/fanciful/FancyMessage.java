@@ -317,6 +317,8 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable {
 			builder.append(object);
 			builder.append('\n');
 		}
+		// Remove last newline
+		builder.replace(builder.length() - 1, builder.length() + 1 /* Capture last character */, "");
 		tooltip(builder.toString());
 		return this;
 	}
@@ -331,7 +333,9 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable {
 		StringBuilder builder = new StringBuilder();
 		for(int i = 0; i < lines.length; i++){
 			builder.append(lines[i]);
-			builder.append('\n');
+			if(i != lines.length - 1){
+				builder.append('\n');
+			}
 		}
 		tooltip(builder.toString());
 		return this;
@@ -364,9 +368,9 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable {
 	public FancyMessage tooltip(FancyMessage... lines){
 		FancyMessage result = new FancyMessage();
 
-		for(FancyMessage text : lines){
+		for(int i = 0; i < lines.length; i++){
 			try{
-				for(MessagePart component : text.messageParts){
+				for(MessagePart component : lines[i].messageParts){
 					if(component.clickActionData != null && component.clickActionName != null){
 						throw new IllegalArgumentException("The tooltip text cannot have click data.");
 					}else if(component.hoverActionData != null && component.hoverActionName != null){
@@ -376,7 +380,9 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable {
 						result.messageParts.add(component.clone());
 					}
 				}
-				result.messageParts.add(new MessagePart("\n"));
+				if(i != lines.length - 1){
+					result.messageParts.add(new MessagePart("\n"));
+				}
 			}catch (CloneNotSupportedException e) {
 				e.printStackTrace();
 				return this;
