@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import net.amoebaman.util.ArrayWrapper;
 import net.amoebaman.util.Reflection;
 
 import org.bukkit.Achievement;
@@ -300,7 +301,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable {
 	 * @param text The text, which supports newlines, which will be displayed to the client upon hovering.
 	 * @return This builder instance.
 	 */
-	public FancyMessage tooltip(final String text) {
+	public FancyMessage tooltipUnformatted(final String text) {
 		onHover("show_text", new JsonString(text));
 		return this;
 	}
@@ -311,15 +312,8 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable {
 	 * @param lines The lines of text which will be displayed to the client upon hovering. The iteration order of this object will be the order in which the lines of the tooltip are created.
 	 * @return This builder instance.
 	 */
-	public FancyMessage tooltip(final Iterable<String> lines) {
-		StringBuilder builder = new StringBuilder();
-		for(String object : lines){
-			builder.append(object);
-			builder.append('\n');
-		}
-		// Remove last newline
-		builder.replace(builder.length() - 1, builder.length() + 1 /* Capture last character */, "");
-		tooltip(builder.toString());
+	public FancyMessage tooltipUnformatted(final Iterable<String> lines) {
+		tooltipUnformatted(ArrayWrapper.toArray(lines, String.class));
 		return this;
 	}
 
@@ -329,7 +323,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable {
 	 * @param lines The lines of text which will be displayed to the client upon hovering.
 	 * @return This builder instance.
 	 */
-	public FancyMessage tooltip(final String... lines) {
+	public FancyMessage tooltipUnformatted(final String... lines) {
 		StringBuilder builder = new StringBuilder();
 		for(int i = 0; i < lines.length; i++){
 			builder.append(lines[i]);
@@ -337,7 +331,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable {
 				builder.append('\n');
 			}
 		}
-		tooltip(builder.toString());
+		tooltipUnformatted(builder.toString());
 		return this;
 	}
 
@@ -347,7 +341,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable {
 	 * @param text The formatted text which will be displayed to the client upon hovering.
 	 * @return This builder instance.
 	 */
-	public FancyMessage tooltip(FancyMessage text){
+	public FancyMessage tooltipFormatted(FancyMessage text){
 		for(MessagePart component : text.messageParts){
 			if(component.clickActionData != null && component.clickActionName != null){
 				throw new IllegalArgumentException("The tooltip text cannot have click data.");
@@ -362,10 +356,10 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable {
 	/**
 	 * Set the behavior of the current editing component to display the specified lines of formatted text when the client hovers over the text.
 	 * <p>Tooltips do not inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
-	 * @param text The formatted text which will be displayed to the client upon hovering.
+	 * @param lines The lines of formatted text which will be displayed to the client upon hovering.
 	 * @return This builder instance.
 	 */
-	public FancyMessage tooltip(FancyMessage... lines){
+	public FancyMessage tooltipFormatted(FancyMessage... lines){
 		FancyMessage result = new FancyMessage();
 
 		for(int i = 0; i < lines.length; i++){
@@ -388,7 +382,17 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable {
 				return this;
 			}
 		} 
-		return tooltip(result);
+		return tooltipFormatted(result);
+	}
+	
+	/**
+	 * Set the behavior of the current editing component to display the specified lines of formatted text when the client hovers over the text.
+	 * <p>Tooltips do not inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
+	 * @param lines The lines of text which will be displayed to the client upon hovering. The iteration order of this object will be the order in which the lines of the tooltip are created.
+	 * @return This builder instance.
+	 */
+	public FancyMessage tooltipFormatted(final Iterable<FancyMessage> lines){
+		return tooltipFormatted(ArrayWrapper.toArray(lines, FancyMessage.class));
 	}
 
 	/**
