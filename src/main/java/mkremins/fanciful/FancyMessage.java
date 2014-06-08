@@ -8,6 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import net.amoebaman.util.ArrayWrapper;
@@ -34,7 +35,7 @@ import org.bukkit.inventory.ItemStack;
  * optionally initializing it with text. Further property-setting method calls will affect that editing component.
  * </p>
  */
-public class FancyMessage implements JsonRepresentedObject, Cloneable {
+public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<MessagePart> {
 
 	private List<MessagePart> messageParts;
 	private String jsonString;
@@ -370,7 +371,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable {
 
 		for(int i = 0; i < lines.length; i++){
 			try{
-				for(MessagePart component : lines[i].messageParts){
+				for(MessagePart component : lines[i]){
 					if(component.clickActionData != null && component.clickActionName != null){
 						throw new IllegalArgumentException("The tooltip text cannot have click data.");
 					}else if(component.hoverActionData != null && component.hoverActionName != null){
@@ -435,7 +436,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable {
 			latest().writeJson(writer);
 		} else {
 			writer.beginObject().name("text").value("").name("extra").beginArray();
-			for (final MessagePart part : messageParts) {
+			for (final MessagePart part : this) {
 				part.writeJson(writer);
 			}
 			writer.endArray().endObject();
@@ -545,7 +546,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable {
 	 */
 	public String toOldMessageFormat() {
 		StringBuilder result = new StringBuilder();
-		for (MessagePart part : messageParts) {
+		for (MessagePart part : this) {
 			result.append(part.color == null ? "" : part.color);
 			for(ChatColor formatSpecifier : part.styles){
 				result.append(formatSpecifier);
@@ -571,6 +572,13 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable {
 		latest.hoverActionName = name;
 		latest.hoverActionData = data;
 		dirty = true;
+	}
+
+	/**
+	 * <b>Internally called method. Not for API consumption.</b>
+	 */
+	public Iterator<MessagePart> iterator() {
+		return messageParts.iterator();
 	}
 
 }
