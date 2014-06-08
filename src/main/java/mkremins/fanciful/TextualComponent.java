@@ -143,7 +143,8 @@ public abstract class TextualComponent implements Cloneable{
 		// Write the JSON string, required for this component, out
 		try {
 			json.beginObject().name("name").value(playerName)
-			.name("objective").value(scoreboardObjective).endObject().close();
+			.name("objective").value(scoreboardObjective).endObject();
+			json.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;
