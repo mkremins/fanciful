@@ -1,5 +1,7 @@
 package mkremins.fanciful;
 
+import static mkremins.fanciful.TextualComponent.rawText;
+
 import java.io.StringWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -45,7 +47,7 @@ public class FancyMessage {
 	 * @param firstPartText The existing text in the message.
 	 */
 	public FancyMessage(final String firstPartText) {
-		this(TextualComponent.rawText(firstPartText));
+		this(rawText(firstPartText));
 	}
 	
 	public FancyMessage(final TextualComponent firstPartText) {
@@ -82,7 +84,7 @@ public class FancyMessage {
 		if (latest.hasText()) {
 			throw new IllegalStateException("text for this message part is already set");
 		}
-		latest.text = TextualComponent.rawText(text);
+		latest.text = rawText(text);
 		dirty = true;
 		return this;
 	}
@@ -328,7 +330,7 @@ public class FancyMessage {
 	 * @return This builder instance.
 	 */
 	public FancyMessage then(final String text) {
-		return then(TextualComponent.rawText(text));
+		return then(rawText(text));
 	}
 	
 	/**
