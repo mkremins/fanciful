@@ -360,7 +360,13 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable {
 	 * @return This builder instance.
 	 */
 	public FancyMessage tooltipFormatted(FancyMessage... lines){
+		if(lines.length < 1){
+			onHover(null, null); // Clear tooltip
+			return this;
+		}
+		
 		FancyMessage result = new FancyMessage();
+		result.messageParts.clear(); // Remove the one existing text component that exists by default, which destabilizes the object
 
 		for(int i = 0; i < lines.length; i++){
 			try{
@@ -382,7 +388,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable {
 				return this;
 			}
 		} 
-		return tooltipFormatted(result);
+		return tooltipFormatted(result.messageParts.size() == 0 ? null : result); // Throws NPE if size is 0, intended
 	}
 	
 	/**
