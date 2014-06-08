@@ -302,7 +302,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 	 * @param text The text, which supports newlines, which will be displayed to the client upon hovering.
 	 * @return This builder instance.
 	 */
-	public FancyMessage tooltipUnformatted(final String text) {
+	public FancyMessage tooltip(final String text) {
 		onHover("show_text", new JsonString(text));
 		return this;
 	}
@@ -313,8 +313,8 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 	 * @param lines The lines of text which will be displayed to the client upon hovering. The iteration order of this object will be the order in which the lines of the tooltip are created.
 	 * @return This builder instance.
 	 */
-	public FancyMessage tooltipUnformatted(final Iterable<String> lines) {
-		tooltipUnformatted(ArrayWrapper.toArray(lines, String.class));
+	public FancyMessage tooltip(final Iterable<String> lines) {
+		tooltip(ArrayWrapper.toArray(lines, String.class));
 		return this;
 	}
 
@@ -324,7 +324,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 	 * @param lines The lines of text which will be displayed to the client upon hovering.
 	 * @return This builder instance.
 	 */
-	public FancyMessage tooltipUnformatted(final String... lines) {
+	public FancyMessage tooltip(final String... lines) {
 		StringBuilder builder = new StringBuilder();
 		for(int i = 0; i < lines.length; i++){
 			builder.append(lines[i]);
@@ -332,7 +332,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 				builder.append('\n');
 			}
 		}
-		tooltipUnformatted(builder.toString());
+		tooltip(builder.toString());
 		return this;
 	}
 
@@ -342,7 +342,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 	 * @param text The formatted text which will be displayed to the client upon hovering.
 	 * @return This builder instance.
 	 */
-	public FancyMessage tooltipFormatted(FancyMessage text){
+	public FancyMessage formattedTooltip(FancyMessage text){
 		for(MessagePart component : text.messageParts){
 			if(component.clickActionData != null && component.clickActionName != null){
 				throw new IllegalArgumentException("The tooltip text cannot have click data.");
@@ -360,7 +360,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 	 * @param lines The lines of formatted text which will be displayed to the client upon hovering.
 	 * @return This builder instance.
 	 */
-	public FancyMessage tooltipFormatted(FancyMessage... lines){
+	public FancyMessage formattedTooltip(FancyMessage... lines){
 		if(lines.length < 1){
 			onHover(null, null); // Clear tooltip
 			return this;
@@ -389,7 +389,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 				return this;
 			}
 		} 
-		return tooltipFormatted(result.messageParts.size() == 0 ? null : result); // Throws NPE if size is 0, intended
+		return formattedTooltip(result.messageParts.size() == 0 ? null : result); // Throws NPE if size is 0, intended
 	}
 	
 	/**
@@ -398,8 +398,8 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 	 * @param lines The lines of text which will be displayed to the client upon hovering. The iteration order of this object will be the order in which the lines of the tooltip are created.
 	 * @return This builder instance.
 	 */
-	public FancyMessage tooltipFormatted(final Iterable<FancyMessage> lines){
-		return tooltipFormatted(ArrayWrapper.toArray(lines, FancyMessage.class));
+	public FancyMessage formattedTooltip(final Iterable<FancyMessage> lines){
+		return formattedTooltip(ArrayWrapper.toArray(lines, FancyMessage.class));
 	}
 
 	/**

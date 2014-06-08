@@ -34,13 +34,13 @@ public final class Example {
 			.color(YELLOW)
 			.style(UNDERLINE)
 			.link("http://awesome-server.net")
-			.tooltipUnformatted("AwesomeServer Forums")
+			.tooltip("AwesomeServer Forums")
 		.then(" to win ")
 			.color(GREEN)
 		.then("big prizes!")
 			.color(AQUA)
 			.style(BOLD)
-			.tooltipUnformatted("Terms and conditions may apply. Offer not valid in Sweden.")
+			.tooltip("Terms and conditions may apply. Offer not valid in Sweden.")
 		.toJSONString();
 	}
 	
@@ -57,13 +57,13 @@ public final class Example {
 			.color(GOLD)
 			.style(UNDERLINE)
 			.suggest("/rollenbacken " + playername)
-			.tooltipUnformatted("Be careful, this might undo legitimate edits!")
+			.tooltip("Be careful, this might undo legitimate edits!")
 		.then(" ")
 		.then("Ban?")
 			.color(RED)
 			.style(UNDERLINE)
 			.suggest("/banhammer " + playername)
-			.tooltipUnformatted("Remember: only ban if you have photographic evidence of grief.")
+			.tooltip("Remember: only ban if you have photographic evidence of grief.")
 		.toJSONString();
 	}
 	
