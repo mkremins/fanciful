@@ -89,7 +89,7 @@ public abstract class TextualComponent implements Cloneable{
 	 * @param textValue The text which will be represented.
 	 * @return The text component representing the specified literal text.
 	 */
-	public static TextualComponent fromString(String textValue){
+	public static TextualComponent rawText(String textValue){
 		return new ArbitraryTextTypeComponent("text", textValue);
 	}
 	
@@ -103,7 +103,7 @@ public abstract class TextualComponent implements Cloneable{
 	 * @param translateKey The string key which maps to localized text.
 	 * @return The text component representing the specified localized text.
 	 */
-	public static TextualComponent fromLocalizedString(String translateKey){
+	public static TextualComponent localizedText(String translateKey){
 		return new ArbitraryTextTypeComponent("translate", translateKey);
 	}
 	
@@ -120,8 +120,8 @@ public abstract class TextualComponent implements Cloneable{
 	 * @param scoreboardObjective The name of the objective for which to display the score.
 	 * @return The text component representing the specified scoreboard score (for the viewing player), or {@code null} if an error occurs during JSON serialization.
 	 */
-	public static TextualComponent fromObjectiveScore(String scoreboardObjective){
-		return fromObjectiveScore("*", scoreboardObjective);
+	public static TextualComponent objectiveScore(String scoreboardObjective){
+		return objectiveScore("*", scoreboardObjective);
 	}
 	
 	/**
@@ -135,7 +135,7 @@ public abstract class TextualComponent implements Cloneable{
 	 * @param scoreboardObjective The name of the objective for which to display the score.
 	 * @return The text component representing the specified scoreboard score for the specified player, or {@code null} if an error occurs during JSON serialization.
 	 */
-	public static TextualComponent fromObjectiveScore(String playerName, String scoreboardObjective){
+	public static TextualComponent objectiveScore(String playerName, String scoreboardObjective){
 		throwUnsupportedSnapshot(); // Remove this line when the feature is released to non-snapshot versions, in addition to updating ALL THE OVERLOADS documentation accordingly
 		
 		StringWriter string = new StringWriter();
@@ -161,7 +161,7 @@ public abstract class TextualComponent implements Cloneable{
 	 * @param selector The minecraft player or entity selector which will capture the entities whose string representations will be displayed in the place of this text component.
 	 * @return The text component representing the name of the entities captured by the selector.
 	 */
-	public static TextualComponent fromEntitySelector(String selector){
+	public static TextualComponent selector(String selector){
 		throwUnsupportedSnapshot(); // Remove this line when the feature is released to non-snapshot versions, in addition to updating ALL THE OVERLOADS documentation accordingly
 		
 		return new ArbitraryTextTypeComponent("selector", selector);

@@ -45,7 +45,7 @@ public class FancyMessage {
 	 * @param firstPartText The existing text in the message.
 	 */
 	public FancyMessage(final String firstPartText) {
-		this(TextualComponent.fromString(firstPartText));
+		this(TextualComponent.rawText(firstPartText));
 	}
 	
 	public FancyMessage(final TextualComponent firstPartText) {
@@ -82,7 +82,7 @@ public class FancyMessage {
 		if (latest.hasText()) {
 			throw new IllegalStateException("text for this message part is already set");
 		}
-		latest.text = TextualComponent.fromString(text);
+		latest.text = TextualComponent.rawText(text);
 		dirty = true;
 		return this;
 	}
@@ -328,7 +328,7 @@ public class FancyMessage {
 	 * @return This builder instance.
 	 */
 	public FancyMessage then(final String text) {
-		return then(TextualComponent.fromString(text));
+		return then(TextualComponent.rawText(text));
 	}
 	
 	/**
