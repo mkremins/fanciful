@@ -13,13 +13,15 @@ final class MessagePart {
 	ArrayList<ChatColor> styles = new ArrayList<ChatColor>();
 	String clickActionName = null, clickActionData = null,
 		   hoverActionName = null, hoverActionData = null;
-	String text = null;
-
-	MessagePart(final String text) {
+	TextualComponent text = null;
+	
+	MessagePart(final TextualComponent text){
 		this.text = text;
 	}
 	
-	MessagePart() {}
+	MessagePart() {
+		this.text = null;
+	}
 	
 	boolean hasText() {
 		return text != null;
@@ -27,7 +29,8 @@ final class MessagePart {
 
 	JsonWriter writeJson(JsonWriter json) {
 		try {
-			json.beginObject().name("text").value(text);
+			json.beginObject();
+			text.writeJson(json);
 			json.name("color").value(color.name().toLowerCase());
 			for (final ChatColor style : styles) {
 				String styleName;

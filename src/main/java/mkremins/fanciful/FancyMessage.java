@@ -1,5 +1,7 @@
 package mkremins.fanciful;
 
+import static mkremins.fanciful.TextualComponent.rawText;
+
 import java.io.StringWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -45,6 +47,10 @@ public class FancyMessage {
 	 * @param firstPartText The existing text in the message.
 	 */
 	public FancyMessage(final String firstPartText) {
+		this(rawText(firstPartText));
+	}
+	
+	public FancyMessage(final TextualComponent firstPartText) {
 		messageParts = new ArrayList<MessagePart>();
 		messageParts.add(new MessagePart(firstPartText));
 		jsonString = null;
@@ -64,7 +70,7 @@ public class FancyMessage {
 	 * Creates a JSON message without text.
 	 */
 	public FancyMessage() {
-		this(null);
+		this((TextualComponent)null);
 	}
 	
 	/**
@@ -74,6 +80,16 @@ public class FancyMessage {
 	 * @exception IllegalStateException If the text for the current editing component has already been set.
 	 */
 	public FancyMessage text(String text) {
+		MessagePart latest = latest();
+		if (latest.hasText()) {
+			throw new IllegalStateException("text for this message part is already set");
+		}
+		latest.text = rawText(text);
+		dirty = true;
+		return this;
+	}
+	
+	public FancyMessage text(TextualComponent text) {
 		MessagePart latest = latest();
 		if (latest.hasText()) {
 			throw new IllegalStateException("text for this message part is already set");
@@ -313,11 +329,21 @@ public class FancyMessage {
 	 * @param obj The text which will populate the new message component.
 	 * @return This builder instance.
 	 */
-	public FancyMessage then(final Object obj) {
+	public FancyMessage then(final String text) {
+		return then(rawText(text));
+	}
+	
+	/**
+	 * Terminate construction of the current editing component, and begin construction of a new message component.
+	 * After a successful call to this method, all setter methods will refer to a new message component, created as a result of the call to this method.
+	 * @param obj The text which will populate the new message component.
+	 * @return This builder instance.
+	 */
+	public FancyMessage then(final TextualComponent text) {
 		if (!latest().hasText()) {
 			throw new IllegalStateException("previous message part has no text");
 		}
-		messageParts.add(new MessagePart(obj.toString()));
+		messageParts.add(new MessagePart(text));
 		dirty = true;
 		return this;
 	}
