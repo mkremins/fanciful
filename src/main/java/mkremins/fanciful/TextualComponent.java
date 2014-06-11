@@ -43,6 +43,22 @@ public abstract class TextualComponent implements Cloneable {
 	 */
 	public abstract void writeJson(JsonWriter writer) throws IOException;
 	
+	static TextualComponent deserialize(Map<String, Object> map){
+		if(map.containsKey("key") && map.size() == 2 && map.containsKey("value")){
+			// Arbitrary text component
+			return ArbitraryTextTypeComponent.deserialize(map);
+		}else if(map.size() >= 2 && map.containsKey("key") && !map.containsKey("value") /* It contains keys that START WITH value */){
+			// Complex JSON object
+			return ComplexTextTypeComponent.deserialize(map);
+		}
+		
+		return null;
+	}
+	
+	static boolean isTextKey(String key){
+		return key.equals("translate") || key.equals("text") || key.equals("score") || key.equals("selector");
+	}
+	
 	/**
 	 * Internal class used to represent all types of text components.
 	 * Exception validating done is on keys and values.
@@ -95,7 +111,6 @@ public abstract class TextualComponent implements Cloneable {
 			}};
 		}
 		
-		@SuppressWarnings("unused")
 		public static ArbitraryTextTypeComponent deserialize(Map<String, Object> map){
 			return new ArbitraryTextTypeComponent(map.get("key").toString(), map.get("value").toString());
 		}
@@ -160,7 +175,6 @@ public abstract class TextualComponent implements Cloneable {
 			}};
 		}
 		
-		@SuppressWarnings("unused")
 		public static ComplexTextTypeComponent deserialize(Map<String, Object> map){
 			String key = null;
 			Map<String, String> value = new HashMap<String, String>();

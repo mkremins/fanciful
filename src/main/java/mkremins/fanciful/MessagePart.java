@@ -9,6 +9,9 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.craftbukkit.libs.com.google.gson.stream.JsonWriter;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.ImmutableBiMap;
+
 /**
  * Internal class: Represents a component of a JSON-serializable {@link FancyMessage}.
  */
@@ -17,22 +20,22 @@ final class MessagePart implements JsonRepresentedObject, ConfigurationSerializa
 	ChatColor color = ChatColor.WHITE;
 	ArrayList<ChatColor> styles = new ArrayList<ChatColor>();
 	String clickActionName = null, clickActionData = null,
-		   hoverActionName = null;
+			hoverActionName = null;
 	JsonRepresentedObject hoverActionData = null;
 	TextualComponent text = null;
-	
+
 	MessagePart(final TextualComponent text){
 		this.text = text;
 	}
-	
+
 	MessagePart() {
 		this.text = null;
 	}
-	
+
 	boolean hasText() {
 		return text != null;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public MessagePart clone() throws CloneNotSupportedException{
 		MessagePart obj = (MessagePart)super.clone();
@@ -43,7 +46,31 @@ final class MessagePart implements JsonRepresentedObject, ConfigurationSerializa
 			obj.hoverActionData = ((FancyMessage)hoverActionData).clone();
 		}
 		return obj;
-		
+
+	}
+
+	static final BiMap<ChatColor, String> stylesToNames;
+
+	static{
+		ImmutableBiMap.Builder<ChatColor, String> builder = ImmutableBiMap.builder();
+		for (final ChatColor style : ChatColor.values()){
+			if(!style.isFormat()){
+				continue;
+			}
+
+			String styleName;
+			switch (style) {
+			case MAGIC:
+				styleName = "obfuscated"; break;
+			case UNDERLINE:
+				styleName = "underlined"; break;
+			default:
+				styleName = style.name().toLowerCase(); break;
+			}
+			
+			builder.put(style, styleName);
+		}
+		stylesToNames = builder.build();
 	}
 
 	public void writeJson(JsonWriter json) {
@@ -52,31 +79,22 @@ final class MessagePart implements JsonRepresentedObject, ConfigurationSerializa
 			text.writeJson(json);
 			json.name("color").value(color.name().toLowerCase());
 			for (final ChatColor style : styles) {
-				String styleName;
-				switch (style) {
-				case MAGIC:
-					styleName = "obfuscated"; break;
-				case UNDERLINE:
-					styleName = "underlined"; break;
-				default:
-					styleName = style.name().toLowerCase(); break;
-				}
-				json.name(styleName).value(true);
+				json.name(stylesToNames.get(style)).value(true);
 			}
 			if (clickActionName != null && clickActionData != null) {
 				json.name("clickEvent")
-					.beginObject()
-					.name("action").value(clickActionName)
-					.name("value").value(clickActionData)
-					.endObject();
+				.beginObject()
+				.name("action").value(clickActionName)
+				.name("value").value(clickActionData)
+				.endObject();
 			}
 			if (hoverActionName != null && hoverActionData != null) {
 				json.name("hoverEvent")
-					.beginObject()
-					.name("action").value(hoverActionName)
-					.name("value");
-					hoverActionData.writeJson(json);
-					json.endObject();
+				.beginObject()
+				.name("action").value(hoverActionName)
+				.name("value");
+				hoverActionData.writeJson(json);
+				json.endObject();
 			}
 			json.endObject();
 		} catch(Exception e){
@@ -95,7 +113,7 @@ final class MessagePart implements JsonRepresentedObject, ConfigurationSerializa
 		map.put("clickActionData", clickActionData);
 		return map;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public static MessagePart deserialize(Map<String, Object> serialized){
 		MessagePart part = new MessagePart((TextualComponent)serialized.get("text"));
@@ -107,7 +125,7 @@ final class MessagePart implements JsonRepresentedObject, ConfigurationSerializa
 		part.clickActionData = serialized.get("clickActionData").toString();
 		return part;
 	}
-	
+
 	static{
 		ConfigurationSerialization.registerClass(MessagePart.class);
 	}

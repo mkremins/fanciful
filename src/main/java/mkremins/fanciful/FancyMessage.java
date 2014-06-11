@@ -26,6 +26,10 @@ import org.bukkit.Statistic.Type;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.craftbukkit.libs.com.google.gson.JsonArray;
+import org.bukkit.craftbukkit.libs.com.google.gson.JsonElement;
+import org.bukkit.craftbukkit.libs.com.google.gson.JsonObject;
+import org.bukkit.craftbukkit.libs.com.google.gson.JsonParser;
 import org.bukkit.craftbukkit.libs.com.google.gson.stream.JsonWriter;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -514,7 +518,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 	}
 
 	// The ChatSerializer's instance of Gson
-	private net.minecraft.util.com.google.gson.Gson nmsChatSerializerGsonInstance;
+	private static net.minecraft.util.com.google.gson.Gson nmsChatSerializerGsonInstance;
 
 	private Object createChatPacket(String json) throws IllegalArgumentException, IllegalAccessException, InstantiationException, InvocationTargetException{
 		if(nmsChatSerializerGsonInstance == null){
@@ -612,16 +616,22 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 	public Map<String, Object> serialize() {
 		HashMap<String, Object> map = new HashMap<String, Object>();
 		map.put("messageParts", messageParts);
-		map.put("JSON", toJSONString());
+//		map.put("JSON", toJSONString());
 		return map;
 	}
 
+	/**
+	 * Deserializes a JSON-represented message from a mapping of key-value pairs.
+	 * This is called by the Bukkit serialization API.
+	 * It is not intended for direct public API consumption.
+	 * @param serialized The key-value mapping which represents a fancy message.
+	 */
 	@SuppressWarnings("unchecked")
 	public static FancyMessage deserialize(Map<String, Object> serialized){
 		FancyMessage msg = new FancyMessage();
 		msg.messageParts = (List<MessagePart>)serialized.get("messageParts");
-		msg.jsonString = serialized.get("JSON").toString();
-		msg.dirty = false;
+		msg.jsonString = serialized.containsKey("JSON") ? serialized.get("JSON").toString() : null;
+		msg.dirty = !serialized.containsKey("JSON");
 		return msg;
 	}
 
@@ -630,5 +640,66 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 	 */
 	public Iterator<MessagePart> iterator() {
 		return messageParts.iterator();
+	}
+	
+	private static JsonParser _stringParser = new JsonParser();
+	
+	/**
+	 * Deserializes a fancy message from its JSON representation. This JSON representation is of the format of
+	 * that returned by {@link #toJSONString()}, and is compatible with vanilla inputs.
+	 * @param json The JSON string which represents a fancy message.
+	 * @return A {@code FancyMessage} representing the parameterized JSON message.
+	 */
+	public static FancyMessage deserialize(String json){
+		JsonObject serialized = _stringParser.parse(json).getAsJsonObject();
+		JsonArray extra = serialized.getAsJsonArray("extra"); // Get the extra component
+		FancyMessage returnVal = new FancyMessage();
+		returnVal.messageParts.clear();
+		for(JsonElement mPrt : extra){
+			MessagePart component = new MessagePart();
+			JsonObject messagePart = mPrt.getAsJsonObject();
+			for(Map.Entry<String, JsonElement> entry : messagePart.entrySet()){
+				// Deserialize text
+				if(TextualComponent.isTextKey(entry.getKey())){
+					// The map mimics the YAML serialization, which has a "key" field and one or more "value" fields
+					Map<String, Object> serializedMapForm = new HashMap<String, Object>(); // Must be object due to Bukkit serializer API compliance
+					serializedMapForm.put("key", entry.getKey());
+					if(entry.getValue().isJsonPrimitive()){
+						// Assume string
+						serializedMapForm.put("value", entry.getValue().getAsString());
+					}else{
+						// Composite object, but we assume each element is a string
+						for(Map.Entry<String, JsonElement> compositeNestedElement : entry.getValue().getAsJsonObject().entrySet()){
+							serializedMapForm.put("value." + compositeNestedElement.getKey(), compositeNestedElement.getValue().getAsString());
+						}
+					}
+					component.text = TextualComponent.deserialize(serializedMapForm);
+				}else if(MessagePart.stylesToNames.inverse().containsKey(entry.getKey())){
+					if(entry.getValue().getAsBoolean()){
+						component.styles.add(MessagePart.stylesToNames.inverse().get(entry.getKey()));
+					}
+				}else if(entry.getKey().equals("color")){
+					component.color = ChatColor.valueOf(entry.getValue().getAsString().toUpperCase());
+				}else if(entry.getKey().equals("clickEvent")){
+					JsonObject object = entry.getValue().getAsJsonObject();
+					component.clickActionName = object.get("action").getAsString();
+					component.clickActionData = object.get("value").getAsString();
+				}else if(entry.getKey().equals("hoverEvent")){
+					JsonObject object = entry.getValue().getAsJsonObject();
+					component.hoverActionName = object.get("action").getAsString();
+					if(object.get("value").isJsonPrimitive()){
+						// Assume string
+						component.hoverActionData = new JsonString(object.get("value").getAsString());
+					}else{
+						// Assume composite type
+						// The only composite type we currently store is another FancyMessage
+						// Therefore, recursion time!
+						component.hoverActionData = deserialize(object.get("value").toString() /* This should properly serialize the JSON object as a JSON string */);
+					}
+				}
+			}
+			returnVal.messageParts.add(component);
+		}
+		return returnVal;
 	}
 }
