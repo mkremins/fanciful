@@ -7,12 +7,13 @@ import org.bukkit.craftbukkit.libs.com.google.gson.stream.JsonWriter;
 /**
  * Internal class: Represents a component of a JSON-serializable {@link FancyMessage}.
  */
-final class MessagePart {
+final class MessagePart implements JsonRepresentedObject, Cloneable {
 
 	ChatColor color = ChatColor.WHITE;
 	ArrayList<ChatColor> styles = new ArrayList<ChatColor>();
 	String clickActionName = null, clickActionData = null,
-		   hoverActionName = null, hoverActionData = null;
+		   hoverActionName = null;
+	JsonRepresentedObject hoverActionData = null;
 	TextualComponent text = null;
 	
 	MessagePart(final TextualComponent text){
@@ -26,8 +27,21 @@ final class MessagePart {
 	boolean hasText() {
 		return text != null;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public MessagePart clone() throws CloneNotSupportedException{
+		MessagePart obj = (MessagePart)super.clone();
+		obj.styles = (ArrayList<ChatColor>)styles.clone();
+		if(hoverActionData instanceof JsonString){
+			obj.hoverActionData = new JsonString(((JsonString)hoverActionData).getValue());
+		}else if(hoverActionData instanceof FancyMessage){
+			obj.hoverActionData = ((FancyMessage)hoverActionData).clone();
+		}
+		return obj;
+		
+	}
 
-	JsonWriter writeJson(JsonWriter json) {
+	public void writeJson(JsonWriter json) {
 		try {
 			json.beginObject();
 			text.writeJson(json);
@@ -55,13 +69,13 @@ final class MessagePart {
 				json.name("hoverEvent")
 					.beginObject()
 					.name("action").value(hoverActionName)
-					.name("value").value(hoverActionData)
-					.endObject();
+					.name("value");
+					hoverActionData.writeJson(json);
+					json.endObject();
 			}
-			return json.endObject();
+			json.endObject();
 		} catch(Exception e){
 			e.printStackTrace();
-			return json;
 		}
 	}
 
