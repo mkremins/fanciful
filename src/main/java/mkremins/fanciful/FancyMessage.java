@@ -9,7 +9,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.amoebaman.util.Reflection;
 
@@ -19,6 +21,8 @@ import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.Statistic.Type;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.craftbukkit.libs.com.google.gson.stream.JsonWriter;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -34,9 +38,13 @@ import org.bukkit.inventory.ItemStack;
  * optionally initializing it with text. Further property-setting method calls will affect that editing component.
  * </p>
  */
-public class FancyMessage {
+public class FancyMessage implements ConfigurationSerializable {
 	
-	private final List<MessagePart> messageParts;
+	static{
+		ConfigurationSerialization.registerClass(FancyMessage.class);
+	}
+	
+	private List<MessagePart> messageParts;
 	private String jsonString;
 	private boolean dirty;
 	
@@ -519,6 +527,23 @@ public class FancyMessage {
 		latest.hoverActionName = name;
 		latest.hoverActionData = data;
 		dirty = true;
+	}
+
+	// Doc copied from interface
+	public Map<String, Object> serialize() {
+		HashMap<String, Object> map = new HashMap<String, Object>();
+		map.put("messageParts", messageParts);
+		map.put("JSON", toJSONString());
+		return map;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static FancyMessage deserialize(Map<String, Object> serialized){
+		FancyMessage msg = new FancyMessage();
+		msg.messageParts = (List<MessagePart>)serialized.get("messageParts");
+		msg.jsonString = serialized.get("JSON").toString();
+		msg.dirty = false;
+		return msg;
 	}
 	
 }

@@ -1,13 +1,18 @@
 package mkremins.fanciful;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.craftbukkit.libs.com.google.gson.stream.JsonWriter;
 
 /**
  * Internal class: Represents a component of a JSON-serializable {@link FancyMessage}.
  */
-final class MessagePart {
+final class MessagePart implements ConfigurationSerializable {
 
 	ChatColor color = ChatColor.WHITE;
 	ArrayList<ChatColor> styles = new ArrayList<ChatColor>();
@@ -63,6 +68,34 @@ final class MessagePart {
 			e.printStackTrace();
 			return json;
 		}
+	}
+
+	public Map<String, Object> serialize() {
+		HashMap<String, Object> map = new HashMap<String, Object>();
+		map.put("text", text);
+		map.put("styles", styles);
+		map.put("color", color.getChar());
+		map.put("hoverActionName", hoverActionName);
+		map.put("hoverActionData", hoverActionData);
+		map.put("clickActionName", clickActionName);
+		map.put("clickActionData", clickActionData);
+		return map;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static MessagePart deserialize(Map<String, Object> serialized){
+		MessagePart part = new MessagePart((TextualComponent)serialized.get("text"));
+		part.styles = (ArrayList<ChatColor>)serialized.get("styles");
+		part.color = ChatColor.getByChar(serialized.get("color").toString());
+		part.hoverActionName = serialized.get("hoverActionName").toString();
+		part.hoverActionData = serialized.get("hoverActionData").toString();
+		part.clickActionName = serialized.get("clickActionName").toString();
+		part.clickActionData = serialized.get("clickActionData").toString();
+		return part;
+	}
+	
+	static{
+		ConfigurationSerialization.registerClass(MessagePart.class);
 	}
 
 }

@@ -1,8 +1,11 @@
 package mkremins.fanciful;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.craftbukkit.libs.com.google.gson.stream.JsonWriter;
 
 import com.google.common.base.Preconditions;
@@ -13,8 +16,13 @@ import com.google.common.collect.ImmutableMap;
  * This can be used to not only represent string literals in a JSON message,
  * but also to represent localized strings and other text values.
  */
-public abstract class TextualComponent implements Cloneable{
+public abstract class TextualComponent implements Cloneable {
 
+	static{
+		ConfigurationSerialization.registerClass(TextualComponent.ArbitraryTextTypeComponent.class);
+		ConfigurationSerialization.registerClass(TextualComponent.ComplexTextTypeComponent.class);
+	}
+	
 	/**
 	 * Get the JSON key used to represent text components of this type.
 	 */
@@ -39,7 +47,7 @@ public abstract class TextualComponent implements Cloneable{
 	 * Internal class used to represent all types of text components.
 	 * Exception validating done is on keys and values.
 	 */
-	private static final class ArbitraryTextTypeComponent extends TextualComponent{
+	private static final class ArbitraryTextTypeComponent extends TextualComponent implements ConfigurationSerializable {
 
 		public ArbitraryTextTypeComponent(String key, String value){
 			setKey(key);
@@ -78,13 +86,26 @@ public abstract class TextualComponent implements Cloneable{
 		public void writeJson(JsonWriter writer) throws IOException {
 			writer.name(getKey()).value(getValue());
 		}
+
+		@SuppressWarnings("serial")
+		public Map<String, Object> serialize() {
+			return new HashMap<String, Object>(){{
+				put("key", getKey());
+				put("value", getValue());
+			}};
+		}
+		
+		@SuppressWarnings("unused")
+		public static ArbitraryTextTypeComponent deserialize(Map<String, Object> map){
+			return new ArbitraryTextTypeComponent(map.get("key").toString(), map.get("value").toString());
+		}
 	}
 	
 	/**
 	 * Internal class used to represent a text component with a nested JSON value.
 	 * Exception validating done is on keys and values.
 	 */
-	private static final class ComplexTextTypeComponent extends TextualComponent{
+	private static final class ComplexTextTypeComponent extends TextualComponent implements ConfigurationSerializable{
 
 		public ComplexTextTypeComponent(String key, Map<String, String> values){
 			setKey(key);
@@ -127,6 +148,30 @@ public abstract class TextualComponent implements Cloneable{
 				writer.name(jsonPair.getKey()).value(jsonPair.getValue());
 			}
 			writer.endObject();
+		}
+		
+		@SuppressWarnings("serial")
+		public Map<String, Object> serialize() {
+			return new java.util.HashMap<String, Object>(){{
+				put("key", getKey());
+				for(Map.Entry<String, String> valEntry : getValue().entrySet()){
+					put("value." + valEntry.getKey(), valEntry.getValue());
+				}
+			}};
+		}
+		
+		@SuppressWarnings("unused")
+		public static ComplexTextTypeComponent deserialize(Map<String, Object> map){
+			String key = null;
+			Map<String, String> value = new HashMap<String, String>();
+			for(Map.Entry<String, Object> valEntry : map.entrySet()){
+				if(valEntry.getKey().equals("key")){
+					key = (String) valEntry.getValue();
+				}else if(valEntry.getKey().toString().startsWith("value.")){
+					value.put(((String) valEntry.getKey()).substring(6) /* Strips out the value prefix */, valEntry.getValue().toString());
+				}
+			}
+			return new ComplexTextTypeComponent(key, value);
 		}
 	}
 	
