@@ -14,16 +14,18 @@ final class MessagePart implements JsonRepresentedObject, Cloneable {
 	String clickActionName = null, clickActionData = null,
 		   hoverActionName = null;
 	JsonRepresentedObject hoverActionData = null;
-	String text = null;
-
-	MessagePart(final String text) {
+	TextualComponent text = null;
+	
+	MessagePart(final TextualComponent text){
 		this.text = text;
 	}
 	
-	MessagePart() {}
+	MessagePart() {
+		this.text = null;
+	}
 	
 	boolean hasText() {
-		return text != null && !text.isEmpty();
+		return text != null;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -41,7 +43,8 @@ final class MessagePart implements JsonRepresentedObject, Cloneable {
 
 	public void writeJson(JsonWriter json) {
 		try {
-			json.beginObject().name("text").value(text);
+			json.beginObject();
+			text.writeJson(json);
 			json.name("color").value(color.name().toLowerCase());
 			for (final ChatColor style : styles) {
 				String styleName;

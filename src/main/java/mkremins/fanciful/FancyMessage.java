@@ -1,5 +1,7 @@
 package mkremins.fanciful;
 
+import static mkremins.fanciful.TextualComponent.rawText;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.reflect.Constructor;
@@ -59,6 +61,10 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 	 * @param firstPartText The existing text in the message.
 	 */
 	public FancyMessage(final String firstPartText) {
+		this(rawText(firstPartText));
+	}
+	
+	public FancyMessage(final TextualComponent firstPartText) {
 		messageParts = new ArrayList<MessagePart>();
 		messageParts.add(new MessagePart(firstPartText));
 		jsonString = null;
@@ -78,7 +84,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 	 * Creates a JSON message without text.
 	 */
 	public FancyMessage() {
-		this(null);
+		this((TextualComponent)null);
 	}
 
 	/**
@@ -88,6 +94,16 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 	 * @exception IllegalStateException If the text for the current editing component has already been set.
 	 */
 	public FancyMessage text(String text) {
+		MessagePart latest = latest();
+		if (latest.hasText()) {
+			throw new IllegalStateException("text for this message part is already set");
+		}
+		latest.text = rawText(text);
+		dirty = true;
+		return this;
+	}
+	
+	public FancyMessage text(TextualComponent text) {
 		MessagePart latest = latest();
 		if (latest.hasText()) {
 			throw new IllegalStateException("text for this message part is already set");
@@ -382,7 +398,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 					}
 				}
 				if(i != lines.length - 1){
-					result.messageParts.add(new MessagePart("\n"));
+					result.messageParts.add(new MessagePart(rawText("\n")));
 				}
 			}catch (CloneNotSupportedException e) {
 				e.printStackTrace();
@@ -408,11 +424,21 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 	 * @param obj The text which will populate the new message component.
 	 * @return This builder instance.
 	 */
-	public FancyMessage then(final Object obj) {
+	public FancyMessage then(final String text) {
+		return then(rawText(text));
+	}
+	
+	/**
+	 * Terminate construction of the current editing component, and begin construction of a new message component.
+	 * After a successful call to this method, all setter methods will refer to a new message component, created as a result of the call to this method.
+	 * @param obj The text which will populate the new message component.
+	 * @return This builder instance.
+	 */
+	public FancyMessage then(final TextualComponent text) {
 		if (!latest().hasText()) {
 			throw new IllegalStateException("previous message part has no text");
 		}
-		messageParts.add(new MessagePart(obj.toString()));
+		messageParts.add(new MessagePart(text));
 		dirty = true;
 		return this;
 	}
