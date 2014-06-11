@@ -2,6 +2,7 @@ package mkremins.fanciful;
 
 import static mkremins.fanciful.TextualComponent.rawText;
 
+import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -10,9 +11,11 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import net.amoebaman.util.ArrayWrapper;
 import net.amoebaman.util.Reflection;
 
 import org.bukkit.Achievement;
@@ -38,18 +41,29 @@ import org.bukkit.inventory.ItemStack;
  * optionally initializing it with text. Further property-setting method calls will affect that editing component.
  * </p>
  */
-public class FancyMessage implements ConfigurationSerializable {
-	
+public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<MessagePart>, ConfigurationSerializable {
+
 	static{
 		ConfigurationSerialization.registerClass(FancyMessage.class);
 	}
-	
+
 	private List<MessagePart> messageParts;
 	private String jsonString;
 	private boolean dirty;
-	
+
 	private static Constructor<?> nmsPacketPlayOutChatConstructor;
-	
+
+	public FancyMessage clone() throws CloneNotSupportedException{
+		FancyMessage instance = (FancyMessage)super.clone();
+		instance.messageParts = new ArrayList<MessagePart>(messageParts.size());
+		for(int i = 0; i < messageParts.size(); i++){
+			instance.messageParts.add(i, messageParts.get(i).clone());
+		}
+		instance.dirty = false;
+		instance.jsonString = null;
+		return instance;
+	}
+
 	/**
 	 * Creates a JSON message with text.
 	 * @param firstPartText The existing text in the message.
@@ -57,13 +71,13 @@ public class FancyMessage implements ConfigurationSerializable {
 	public FancyMessage(final String firstPartText) {
 		this(rawText(firstPartText));
 	}
-	
+
 	public FancyMessage(final TextualComponent firstPartText) {
 		messageParts = new ArrayList<MessagePart>();
 		messageParts.add(new MessagePart(firstPartText));
 		jsonString = null;
 		dirty = false;
-		
+
 		if(nmsPacketPlayOutChatConstructor == null){
 			try {
 				nmsPacketPlayOutChatConstructor = Reflection.getNMSClass("PacketPlayOutChat").getDeclaredConstructor(Reflection.getNMSClass("IChatBaseComponent"));
@@ -73,14 +87,14 @@ public class FancyMessage implements ConfigurationSerializable {
 			}
 		}
 	}
-	
+
 	/**
 	 * Creates a JSON message without text.
 	 */
 	public FancyMessage() {
 		this((TextualComponent)null);
 	}
-	
+
 	/**
 	 * Sets the text of the current editing component to a value.
 	 * @param text The new text of the current editing component.
@@ -96,7 +110,7 @@ public class FancyMessage implements ConfigurationSerializable {
 		dirty = true;
 		return this;
 	}
-	
+
 	public FancyMessage text(TextualComponent text) {
 		MessagePart latest = latest();
 		if (latest.hasText()) {
@@ -106,7 +120,7 @@ public class FancyMessage implements ConfigurationSerializable {
 		dirty = true;
 		return this;
 	}
-	
+
 	/**
 	 * Sets the color of the current editing component to a value.
 	 * @param color The new color of the current editing component.
@@ -121,7 +135,7 @@ public class FancyMessage implements ConfigurationSerializable {
 		dirty = true;
 		return this;
 	}
-	
+
 	/**
 	 * Sets the stylization of the current editing component.
 	 * @param styles The array of styles to apply to the editing component.
@@ -138,7 +152,7 @@ public class FancyMessage implements ConfigurationSerializable {
 		dirty = true;
 		return this;
 	}
-	
+
 	/**
 	 * Set the behavior of the current editing component to instruct the client to open a file on the client side filesystem when the currently edited part of the {@code FancyMessage} is clicked.
 	 * @param path The path of the file on the client filesystem.
@@ -148,7 +162,7 @@ public class FancyMessage implements ConfigurationSerializable {
 		onClick("open_file", path);
 		return this;
 	}
-	
+
 	/**
 	 * Set the behavior of the current editing component to instruct the client to open a webpage in the client's web browser when the currently edited part of the {@code FancyMessage} is clicked.
 	 * @param url The URL of the page to open when the link is clicked.
@@ -158,7 +172,7 @@ public class FancyMessage implements ConfigurationSerializable {
 		onClick("open_url", url);
 		return this;
 	}
-	
+
 	/**
 	 * Set the behavior of the current editing component to instruct the client to replace the chat input box content with the specified string when the currently edited part of the {@code FancyMessage} is clicked.
 	 * The client will not immediately send the command to the server to be executed unless the client player submits the command/chat message, usually with the enter key.
@@ -169,7 +183,7 @@ public class FancyMessage implements ConfigurationSerializable {
 		onClick("suggest_command", command);
 		return this;
 	}
-	
+
 	/**
 	 * Set the behavior of the current editing component to instruct the client to send the specified string to the server as a chat message when the currently edited part of the {@code FancyMessage} is clicked.
 	 * The client <b>will</b> immediately send the command to the server to be executed when the editing component is clicked.
@@ -180,19 +194,21 @@ public class FancyMessage implements ConfigurationSerializable {
 		onClick("run_command", command);
 		return this;
 	}
-	
+
 	/**
 	 * Set the behavior of the current editing component to display information about an achievement when the client hovers over the text.
+	 * <p>Tooltips do not inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
 	 * @param name The name of the achievement to display, excluding the "achievement." prefix.
 	 * @return This builder instance.
 	 */
 	public FancyMessage achievementTooltip(final String name) {
-		onHover("show_achievement", "achievement." + name);
+		onHover("show_achievement", new JsonString("achievement." + name));
 		return this;
 	}
-	
+
 	/**
 	 * Set the behavior of the current editing component to display information about an achievement when the client hovers over the text.
+	 * <p>Tooltips do not inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
 	 * @param which The achievement to display.
 	 * @return This builder instance.
 	 */
@@ -205,9 +221,10 @@ public class FancyMessage implements ConfigurationSerializable {
 			return this;
 		}
 	}
-	
+
 	/**
 	 * Set the behavior of the current editing component to display information about a parameterless statistic when the client hovers over the text.
+	 * <p>Tooltips do not inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
 	 * @param which The statistic to display.
 	 * @return This builder instance.
 	 * @exception IllegalArgumentException If the statistic requires a parameter which was not supplied.
@@ -225,9 +242,10 @@ public class FancyMessage implements ConfigurationSerializable {
 			return this;
 		}
 	}
-	
+
 	/**
 	 * Set the behavior of the current editing component to display information about a statistic parametered with a material when the client hovers over the text.
+	 * <p>Tooltips do not inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
 	 * @param which The statistic to display.
 	 * @param item The sole material parameter to the statistic.
 	 * @return This builder instance.
@@ -249,9 +267,10 @@ public class FancyMessage implements ConfigurationSerializable {
 			return this;
 		}
 	}
-	
+
 	/**
 	 * Set the behavior of the current editing component to display information about a statistic parametered with an entity type when the client hovers over the text.
+	 * <p>Tooltips do not inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
 	 * @param which The statistic to display.
 	 * @param entity The sole entity type parameter to the statistic.
 	 * @return This builder instance.
@@ -273,19 +292,21 @@ public class FancyMessage implements ConfigurationSerializable {
 			return this;
 		}
 	}
-	
+
 	/**
 	 * Set the behavior of the current editing component to display information about an item when the client hovers over the text.
+	 * <p>Tooltips do not inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
 	 * @param itemJSON A string representing the JSON-serialized NBT data tag of an {@link ItemStack}.
 	 * @return This builder instance.
 	 */
 	public FancyMessage itemTooltip(final String itemJSON) {
-		onHover("show_item", itemJSON);
+		onHover("show_item", new JsonString(itemJSON)); // Seems a bit hacky, considering we have a JSON object as a parameter
 		return this;
 	}
-	
+
 	/**
 	 * Set the behavior of the current editing component to display information about an item when the client hovers over the text.
+	 * <p>Tooltips do not inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
 	 * @param itemStack The stack for which to display information.
 	 * @return This builder instance.
 	 */
@@ -298,39 +319,113 @@ public class FancyMessage implements ConfigurationSerializable {
 			return this;
 		}
 	}
-	
+
 	/**
 	 * Set the behavior of the current editing component to display raw text when the client hovers over the text.
+	 * <p>Tooltips do not inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
 	 * @param text The text, which supports newlines, which will be displayed to the client upon hovering.
 	 * @return This builder instance.
 	 */
 	public FancyMessage tooltip(final String text) {
-		return tooltip(text.split("\\n"));
+		onHover("show_text", new JsonString(text));
+		return this;
 	}
-	
+
 	/**
 	 * Set the behavior of the current editing component to display raw text when the client hovers over the text.
-	 * @param lines The lines of text which will be displayed to the client upon hovering.
+	 * <p>Tooltips do not inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
+	 * @param lines The lines of text which will be displayed to the client upon hovering. The iteration order of this object will be the order in which the lines of the tooltip are created.
 	 * @return This builder instance.
 	 */
-	public FancyMessage tooltip(final List<String> lines) {
-		return tooltip(lines.toArray(new String[0]));
+	public FancyMessage tooltip(final Iterable<String> lines) {
+		tooltip(ArrayWrapper.toArray(lines, String.class));
+		return this;
 	}
-	
+
 	/**
 	 * Set the behavior of the current editing component to display raw text when the client hovers over the text.
+	 * <p>Tooltips do not inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
 	 * @param lines The lines of text which will be displayed to the client upon hovering.
 	 * @return This builder instance.
 	 */
 	public FancyMessage tooltip(final String... lines) {
-		if (lines.length == 1) {
-			onHover("show_text", lines[0]);
-		} else {
-			itemTooltip(makeMultilineTooltip(lines));
+		StringBuilder builder = new StringBuilder();
+		for(int i = 0; i < lines.length; i++){
+			builder.append(lines[i]);
+			if(i != lines.length - 1){
+				builder.append('\n');
+			}
 		}
+		tooltip(builder.toString());
 		return this;
 	}
-	
+
+	/**
+	 * Set the behavior of the current editing component to display formatted text when the client hovers over the text.
+	 * <p>Tooltips do not inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
+	 * @param text The formatted text which will be displayed to the client upon hovering.
+	 * @return This builder instance.
+	 */
+	public FancyMessage formattedTooltip(FancyMessage text){
+		for(MessagePart component : text.messageParts){
+			if(component.clickActionData != null && component.clickActionName != null){
+				throw new IllegalArgumentException("The tooltip text cannot have click data.");
+			}else if(component.hoverActionData != null && component.hoverActionName != null){
+				throw new IllegalArgumentException("The tooltip text cannot have a tooltip.");
+			}
+		}
+		onHover("show_text", text);
+		return this;
+	}
+
+	/**
+	 * Set the behavior of the current editing component to display the specified lines of formatted text when the client hovers over the text.
+	 * <p>Tooltips do not inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
+	 * @param lines The lines of formatted text which will be displayed to the client upon hovering.
+	 * @return This builder instance.
+	 */
+	public FancyMessage formattedTooltip(FancyMessage... lines){
+		if(lines.length < 1){
+			onHover(null, null); // Clear tooltip
+			return this;
+		}
+
+		FancyMessage result = new FancyMessage();
+		result.messageParts.clear(); // Remove the one existing text component that exists by default, which destabilizes the object
+
+		for(int i = 0; i < lines.length; i++){
+			try{
+				for(MessagePart component : lines[i]){
+					if(component.clickActionData != null && component.clickActionName != null){
+						throw new IllegalArgumentException("The tooltip text cannot have click data.");
+					}else if(component.hoverActionData != null && component.hoverActionName != null){
+						throw new IllegalArgumentException("The tooltip text cannot have a tooltip.");
+					}
+					if(component.hasText()){
+						result.messageParts.add(component.clone());
+					}
+				}
+				if(i != lines.length - 1){
+					result.messageParts.add(new MessagePart(rawText("\n")));
+				}
+			}catch (CloneNotSupportedException e) {
+				e.printStackTrace();
+				return this;
+			}
+		} 
+		return formattedTooltip(result.messageParts.size() == 0 ? null : result); // Throws NPE if size is 0, intended
+	}
+
+	/**
+	 * Set the behavior of the current editing component to display the specified lines of formatted text when the client hovers over the text.
+	 * <p>Tooltips do not inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
+	 * @param lines The lines of text which will be displayed to the client upon hovering. The iteration order of this object will be the order in which the lines of the tooltip are created.
+	 * @return This builder instance.
+	 */
+	public FancyMessage formattedTooltip(final Iterable<FancyMessage> lines){
+		return formattedTooltip(ArrayWrapper.toArray(lines, FancyMessage.class));
+	}
+
 	/**
 	 * Terminate construction of the current editing component, and begin construction of a new message component.
 	 * After a successful call to this method, all setter methods will refer to a new message component, created as a result of the call to this method.
@@ -340,7 +435,7 @@ public class FancyMessage implements ConfigurationSerializable {
 	public FancyMessage then(final String text) {
 		return then(rawText(text));
 	}
-	
+
 	/**
 	 * Terminate construction of the current editing component, and begin construction of a new message component.
 	 * After a successful call to this method, all setter methods will refer to a new message component, created as a result of the call to this method.
@@ -355,7 +450,7 @@ public class FancyMessage implements ConfigurationSerializable {
 		dirty = true;
 		return this;
 	}
-	
+
 	/**
 	 * Terminate construction of the current editing component, and begin construction of a new message component.
 	 * After a successful call to this method, all setter methods will refer to a new message component, created as a result of the call to this method.
@@ -369,7 +464,19 @@ public class FancyMessage implements ConfigurationSerializable {
 		dirty = true;
 		return this;
 	}
-	
+
+	public void writeJson(JsonWriter writer) throws IOException{
+		if (messageParts.size() == 1) {
+			latest().writeJson(writer);
+		} else {
+			writer.beginObject().name("text").value("").name("extra").beginArray();
+			for (final MessagePart part : this) {
+				part.writeJson(writer);
+			}
+			writer.endArray().endObject();
+		}
+	}
+
 	/**
 	 * Serialize this fancy message, converting it into syntactically-valid JSON using a {@link JsonWriter}.
 	 * This JSON should be compatible with vanilla formatter commands such as {@code /tellraw}.
@@ -382,16 +489,8 @@ public class FancyMessage implements ConfigurationSerializable {
 		StringWriter string = new StringWriter();
 		JsonWriter json = new JsonWriter(string);
 		try {
-			if (messageParts.size() == 1) {
-				latest().writeJson(json);
-			} else {
-				json.beginObject().name("text").value("").name("extra").beginArray();
-				for (final MessagePart part : messageParts) {
-					part.writeJson(json);
-				}
-				json.endArray().endObject();
-				json.close();
-			}
+			writeJson(json);
+			json.close();
 		} catch (Exception e) {
 			throw new RuntimeException("invalid message");
 		}
@@ -399,7 +498,7 @@ public class FancyMessage implements ConfigurationSerializable {
 		dirty = false;
 		return jsonString;
 	}
-	
+
 	/**
 	 * Sends this message to a player. The player will receive the fully-fledged formatted display of this message.
 	 * @param player The player who will receive the message.
@@ -413,10 +512,10 @@ public class FancyMessage implements ConfigurationSerializable {
 			e.printStackTrace();
 		}
 	}
-	
+
 	// The ChatSerializer's instance of Gson
 	private net.minecraft.util.com.google.gson.Gson nmsChatSerializerGsonInstance;
-	
+
 	private Object createChatPacket(String json) throws IllegalArgumentException, IllegalAccessException, InstantiationException, InvocationTargetException{
 		if(nmsChatSerializerGsonInstance == null){
 			// Find the field and its value, completely bypassing obfuscation
@@ -429,11 +528,11 @@ public class FancyMessage implements ConfigurationSerializable {
 				}
 			}
 		}
-		
+
 		// Since the method is so simple, and all the obfuscated methods have the same name, it's easier to reimplement 'IChatBaseComponent a(String)' than to reflectively call it
 		// Of course, the implementation may change, but fuzzy matches might break with signature changes
 		Object serializedChatComponent = nmsChatSerializerGsonInstance.fromJson(json, Reflection.getNMSClass("IChatBaseComponent"));
-		
+
 		return nmsPacketPlayOutChatConstructor.newInstance(serializedChatComponent);
 	}
 
@@ -462,7 +561,7 @@ public class FancyMessage implements ConfigurationSerializable {
 			send(sender);
 		}
 	}
-	
+
 	/**
 	 * Convert this message to a human-readable string with limited formatting.
 	 * This method is used to send this message to clients without JSON formatting support.
@@ -481,7 +580,7 @@ public class FancyMessage implements ConfigurationSerializable {
 	 */
 	public String toOldMessageFormat() {
 		StringBuilder result = new StringBuilder();
-		for (MessagePart part : messageParts) {
+		for (MessagePart part : this) {
 			result.append(part.color == null ? "" : part.color);
 			for(ChatColor formatSpecifier : part.styles){
 				result.append(formatSpecifier);
@@ -490,39 +589,19 @@ public class FancyMessage implements ConfigurationSerializable {
 		}
 		return result.toString();
 	}
-	
+
 	private MessagePart latest() {
 		return messageParts.get(messageParts.size() - 1);
 	}
-	
-	private String makeMultilineTooltip(final String[] lines) {
-		StringWriter string = new StringWriter();
-		JsonWriter json = new JsonWriter(string);
-		try {
-			json.beginObject().name("id").value(1);
-			json.name("tag").beginObject().name("display").beginObject();
-			json.name("Name").value("\\u00A7f" + lines[0].replace("\"", "\\\""));
-			json.name("Lore").beginArray();
-			for (int i = 1; i < lines.length; i++) {
-				final String line = lines[i];
-				json.value(line.isEmpty() ? " " : line.replace("\"", "\\\""));
-			}
-			json.endArray().endObject().endObject().endObject();
-			json.close();
-		} catch (Exception e) {
-			throw new RuntimeException("invalid tooltip");
-		}
-		return string.toString();
-	}
-	
+
 	private void onClick(final String name, final String data) {
 		final MessagePart latest = latest();
 		latest.clickActionName = name;
 		latest.clickActionData = data;
 		dirty = true;
 	}
-	
-	private void onHover(final String name, final String data) {
+
+	private void onHover(final String name, final JsonRepresentedObject data) {
 		final MessagePart latest = latest();
 		latest.hoverActionName = name;
 		latest.hoverActionData = data;
@@ -536,7 +615,7 @@ public class FancyMessage implements ConfigurationSerializable {
 		map.put("JSON", toJSONString());
 		return map;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public static FancyMessage deserialize(Map<String, Object> serialized){
 		FancyMessage msg = new FancyMessage();
@@ -545,5 +624,11 @@ public class FancyMessage implements ConfigurationSerializable {
 		msg.dirty = false;
 		return msg;
 	}
-	
+
+	/**
+	 * <b>Internally called method. Not for API consumption.</b>
+	 */
+	public Iterator<MessagePart> iterator() {
+		return messageParts.iterator();
+	}
 }
