@@ -4,7 +4,7 @@
 
   <groupId>mkremins</groupId>
   <artifactId>fanciful</artifactId>
-  <version>0.1.6-SNAPSHOT</version>
+  <version>0.2.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <properties>
