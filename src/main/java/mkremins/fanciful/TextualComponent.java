@@ -85,7 +85,7 @@ public abstract class TextualComponent implements Cloneable {
 		}
 
 		public void setValue(String value) {
-			Preconditions.checkArgument(value != null && !value.isEmpty(), "The value must be specified.");
+			Preconditions.checkArgument(value != null, "The value must be specified.");
 			_value = value;
 		}
 
