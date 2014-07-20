@@ -1,7 +1,5 @@
 package mkremins.fanciful;
 
-import static mkremins.fanciful.TextualComponent.rawText;
-
 import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.reflect.Constructor;
@@ -14,11 +12,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
+import static mkremins.fanciful.TextualComponent.rawText;
 import net.amoebaman.util.ArrayWrapper;
 import net.amoebaman.util.Reflection;
-
 import org.bukkit.Achievement;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
@@ -589,7 +587,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 			for(ChatColor formatSpecifier : part.styles){
 				result.append(formatSpecifier);
 			}
-			result.append(part.text);
+			result.append(part.text.getReadableString());
 		}
 		return result.toString();
 	}

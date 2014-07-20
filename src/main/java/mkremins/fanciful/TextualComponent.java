@@ -28,6 +28,11 @@ public abstract class TextualComponent implements Cloneable {
 	 */
 	public abstract String getKey();
 	
+        /**
+	 * Gets a readable string
+	 */
+	public abstract String getReadableString();
+        
 	/**
 	 * Clones a textual component instance.
 	 * The returned object should not reference this textual component instance, but should maintain the same key and value.
@@ -114,6 +119,11 @@ public abstract class TextualComponent implements Cloneable {
 		public static ArbitraryTextTypeComponent deserialize(Map<String, Object> map){
 			return new ArbitraryTextTypeComponent(map.get("key").toString(), map.get("value").toString());
 		}
+
+                @Override
+                public String getReadableString() {
+                    return getValue();
+                }
 	}
 	
 	/**
@@ -187,6 +197,11 @@ public abstract class TextualComponent implements Cloneable {
 			}
 			return new ComplexTextTypeComponent(key, value);
 		}
+                
+                @Override
+                public String getReadableString() {
+                    return getKey();
+                }
 	}
 	
 	/**
