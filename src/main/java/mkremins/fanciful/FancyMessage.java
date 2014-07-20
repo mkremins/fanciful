@@ -586,7 +586,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 			for(ChatColor formatSpecifier : part.styles){
 				result.append(formatSpecifier);
 			}
-			result.append(part.text.getReadableString());
+			result.append(part.text);
 		}
 		return result.toString();
 	}
