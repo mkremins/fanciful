@@ -16,7 +16,6 @@ import static mkremins.fanciful.TextualComponent.rawText;
 import net.amoebaman.util.ArrayWrapper;
 import net.amoebaman.util.Reflection;
 import org.bukkit.Achievement;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
