@@ -54,6 +54,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 
 	private static Constructor<?> nmsPacketPlayOutChatConstructor;
 
+        @Override
 	public FancyMessage clone() throws CloneNotSupportedException{
 		FancyMessage instance = (FancyMessage)super.clone();
 		instance.messageParts = new ArrayList<MessagePart>(messageParts.size());
@@ -245,7 +246,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 	}
 
 	/**
-	 * Set the behavior of the current editing component to display information about a statistic parametered with a material when the client hovers over the text.
+	 * Set the behavior of the current editing component to display information about a statistic parameter with a material when the client hovers over the text.
 	 * <p>Tooltips do not inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
 	 * @param which The statistic to display.
 	 * @param item The sole material parameter to the statistic.
@@ -270,7 +271,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 	}
 
 	/**
-	 * Set the behavior of the current editing component to display information about a statistic parametered with an entity type when the client hovers over the text.
+	 * Set the behavior of the current editing component to display information about a statistic parameter with an entity type when the client hovers over the text.
 	 * <p>Tooltips do not inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
 	 * @param which The statistic to display.
 	 * @param entity The sole entity type parameter to the statistic.
@@ -414,7 +415,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 				return this;
 			}
 		} 
-		return formattedTooltip(result.messageParts.size() == 0 ? null : result); // Throws NPE if size is 0, intended
+		return formattedTooltip(result.messageParts.isEmpty() ? null : result); // Throws NPE if size is 0, intended
 	}
 
 	/**
@@ -430,7 +431,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 	/**
 	 * Terminate construction of the current editing component, and begin construction of a new message component.
 	 * After a successful call to this method, all setter methods will refer to a new message component, created as a result of the call to this method.
-	 * @param obj The text which will populate the new message component.
+	 * @param text The text which will populate the new message component.
 	 * @return This builder instance.
 	 */
 	public FancyMessage then(final String text) {
@@ -440,7 +441,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 	/**
 	 * Terminate construction of the current editing component, and begin construction of a new message component.
 	 * After a successful call to this method, all setter methods will refer to a new message component, created as a result of the call to this method.
-	 * @param obj The text which will populate the new message component.
+	 * @param text The text which will populate the new message component.
 	 * @return This builder instance.
 	 */
 	public FancyMessage then(final TextualComponent text) {
