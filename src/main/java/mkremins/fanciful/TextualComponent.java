@@ -23,6 +23,10 @@ public abstract class TextualComponent implements Cloneable {
 		ConfigurationSerialization.registerClass(TextualComponent.ComplexTextTypeComponent.class);
 	}
 	
+	public String toString() {
+		return getReadableString();
+	}
+	
 	/**
 	 * Get the JSON key used to represent text components of this type.
 	 */
