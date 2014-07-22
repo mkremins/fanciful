@@ -505,14 +505,23 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 	 * @param player The player who will receive the message.
 	 */
 	public void send(Player player){
-		try {
+		send(player, toJSONString());
+	}
+        
+        private void send(CommandSender sender, String jsonString){
+                if (!(sender instanceof Player)){
+                        sender.sendMessage(toOldMessageFormat());
+                        return;
+                }
+                Player player = (Player) sender;
+                try {
 			Object handle = Reflection.getHandle(player);
 			Object connection = Reflection.getField(handle.getClass(), "playerConnection").get(handle);
-			Reflection.getMethod(connection.getClass(), "sendPacket", Reflection.getNMSClass("Packet")).invoke(connection, createChatPacket(toJSONString()));
+			Reflection.getMethod(connection.getClass(), "sendPacket", Reflection.getNMSClass("Packet")).invoke(connection, createChatPacket(jsonString));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
+        }
 
 	// The ChatSerializer's instance of Gson
 	private static net.minecraft.util.com.google.gson.Gson nmsChatSerializerGsonInstance;
@@ -545,11 +554,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 	 * @see #toOldMessageFormat()
 	 */
 	public void send(CommandSender sender) {
-		if (sender instanceof Player) {
-			send((Player) sender);
-		} else {
-			sender.sendMessage(toOldMessageFormat());
-		}
+                send(sender, toJSONString());
 	}
 
 	/**
@@ -558,8 +563,9 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 	 * @see #send(CommandSender)
 	 */
 	public void send(final Iterable<? extends CommandSender> senders) {
+                String string = toJSONString();
 		for (final CommandSender sender : senders) {
-			send(sender);
+			send(sender, string);
 		}
 	}
 
