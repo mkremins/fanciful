@@ -12,10 +12,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import static mkremins.fanciful.TextualComponent.rawText;
 import net.amoebaman.util.ArrayWrapper;
 import net.amoebaman.util.Reflection;
 import org.bukkit.Achievement;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
@@ -84,9 +86,11 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 			try {
 				nmsPacketPlayOutChatConstructor = Reflection.getNMSClass("PacketPlayOutChat").getDeclaredConstructor(Reflection.getNMSClass("IChatBaseComponent"));
 				nmsPacketPlayOutChatConstructor.setAccessible(true);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			} catch (NoSuchMethodException e) {
+                                Bukkit.getLogger().log(Level.SEVERE, "Could not find mincraft method or constructor.", e);
+			} catch (SecurityException e) {
+                                Bukkit.getLogger().log(Level.WARNING, "Could not access constructor.", e);
+                        }
 		}
 	}
 
@@ -218,10 +222,16 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 		try {
 			Object achievement = Reflection.getMethod(Reflection.getOBCClass("CraftStatistic"), "getNMSAchievement", Achievement.class).invoke(null, which);
 			return achievementTooltip((String) Reflection.getField(Reflection.getNMSClass("Achievement"), "name").get(achievement));
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+                        Bukkit.getLogger().log(Level.WARNING, "Could not access methode.", e);
 			return this;
-		}
+		} catch (IllegalArgumentException e) {
+                        Bukkit.getLogger().log(Level.WARNING, "Argument could not be passed.", e);
+                        return this;
+                } catch (InvocationTargetException e) {
+                        Bukkit.getLogger().log(Level.WARNING, "A error has occured durring invoking of method.", e);
+                        return this;
+                }
 	}
 
 	/**
@@ -239,10 +249,16 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 		try {
 			Object statistic = Reflection.getMethod(Reflection.getOBCClass("CraftStatistic"), "getNMSStatistic", Statistic.class).invoke(null, which);
 			return achievementTooltip((String) Reflection.getField(Reflection.getNMSClass("Statistic"), "name").get(statistic));
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+                        Bukkit.getLogger().log(Level.WARNING, "Could not access methode.", e);
 			return this;
-		}
+		} catch (IllegalArgumentException e) {
+                        Bukkit.getLogger().log(Level.WARNING, "Argument could not be passed.", e);
+                        return this;
+                } catch (InvocationTargetException e) {
+                        Bukkit.getLogger().log(Level.WARNING, "A error has occured durring invoking of method.", e);
+                        return this;
+                }
 	}
 
 	/**
@@ -264,10 +280,16 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 		try {
 			Object statistic = Reflection.getMethod(Reflection.getOBCClass("CraftStatistic"), "getMaterialStatistic", Statistic.class, Material.class).invoke(null, which, item);
 			return achievementTooltip((String) Reflection.getField(Reflection.getNMSClass("Statistic"), "name").get(statistic));
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+                        Bukkit.getLogger().log(Level.WARNING, "Could not access methode.", e);
 			return this;
-		}
+		} catch (IllegalArgumentException e) {
+                        Bukkit.getLogger().log(Level.WARNING, "Argument could not be passed.", e);
+                        return this;
+                } catch (InvocationTargetException e) {
+                        Bukkit.getLogger().log(Level.WARNING, "A error has occured durring invoking of method.", e);
+                        return this;
+                }
 	}
 
 	/**
@@ -289,10 +311,16 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 		try {
 			Object statistic = Reflection.getMethod(Reflection.getOBCClass("CraftStatistic"), "getEntityStatistic", Statistic.class, EntityType.class).invoke(null, which, entity);
 			return achievementTooltip((String) Reflection.getField(Reflection.getNMSClass("Statistic"), "name").get(statistic));
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+                        Bukkit.getLogger().log(Level.WARNING, "Could not access methode.", e);
 			return this;
-		}
+		} catch (IllegalArgumentException e) {
+                        Bukkit.getLogger().log(Level.WARNING, "Argument could not be passed.", e);
+                        return this;
+                } catch (InvocationTargetException e) {
+                        Bukkit.getLogger().log(Level.WARNING, "A error has occured durring invoking of method.", e);
+                        return this;
+                }
 	}
 
 	/**
@@ -410,8 +438,8 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 				if(i != lines.length - 1){
 					result.messageParts.add(new MessagePart(rawText("\n")));
 				}
-			}catch (CloneNotSupportedException e) {
-				e.printStackTrace();
+			} catch (CloneNotSupportedException e) {
+				Bukkit.getLogger().log(Level.WARNING, "Failed to clone object", e);
 				return this;
 			}
 		} 
@@ -493,7 +521,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 		try {
 			writeJson(json);
 			json.close();
-		} catch (Exception e) {
+		} catch (IOException e) {
 			throw new RuntimeException("invalid message");
 		}
 		jsonString = string.toString();
@@ -519,9 +547,15 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 			Object handle = Reflection.getHandle(player);
 			Object connection = Reflection.getField(handle.getClass(), "playerConnection").get(handle);
 			Reflection.getMethod(connection.getClass(), "sendPacket", Reflection.getNMSClass("Packet")).invoke(connection, createChatPacket(jsonString));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		} catch (IllegalArgumentException e) {
+                        Bukkit.getLogger().log(Level.WARNING, "Argument could not be passed.", e);
+		} catch (IllegalAccessException e) {
+                        Bukkit.getLogger().log(Level.WARNING, "Could not access methode.", e);
+                } catch (InstantiationException e) {
+                        Bukkit.getLogger().log(Level.WARNING, "Underlying class is abstract.", e);
+                } catch (InvocationTargetException e) {
+                        Bukkit.getLogger().log(Level.WARNING, "A error has occured durring invoking of method.", e);
+                }
         }
 
 	// The ChatSerializer's instance of Gson
