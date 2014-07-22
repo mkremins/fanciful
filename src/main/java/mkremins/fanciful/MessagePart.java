@@ -11,6 +11,9 @@ import org.bukkit.craftbukkit.libs.com.google.gson.stream.JsonWriter;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
+import java.io.IOException;
+import java.util.logging.Level;
+import org.bukkit.Bukkit;
 
 /**
  * Internal class: Represents a component of a JSON-serializable {@link FancyMessage}.
@@ -36,6 +39,7 @@ final class MessagePart implements JsonRepresentedObject, ConfigurationSerializa
 		return text != null;
 	}
 
+        @Override
 	@SuppressWarnings("unchecked")
 	public MessagePart clone() throws CloneNotSupportedException{
 		MessagePart obj = (MessagePart)super.clone();
@@ -97,8 +101,8 @@ final class MessagePart implements JsonRepresentedObject, ConfigurationSerializa
 				json.endObject();
 			}
 			json.endObject();
-		} catch(Exception e){
-			e.printStackTrace();
+		} catch(IOException e){
+			Bukkit.getLogger().log(Level.WARNING, "A problem occured during writing of JSON string", e);
 		}
 	}
 
