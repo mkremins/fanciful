@@ -23,17 +23,18 @@ public abstract class TextualComponent implements Cloneable {
 		ConfigurationSerialization.registerClass(TextualComponent.ComplexTextTypeComponent.class);
 	}
 	
+        @Override
 	public String toString() {
 		return getReadableString();
 	}
 	
 	/**
-	 * Get the JSON key used to represent text components of this type.
+         * @return The JSON key used to represent text components of this type.
 	 */
 	public abstract String getKey();
 	
         /**
-	 * Gets a readable string
+         * @return A readable String
 	 */
 	public abstract String getReadableString();
         
@@ -102,6 +103,7 @@ public abstract class TextualComponent implements Cloneable {
 		private String _value;
 		
 		@Override
+                @SuppressWarnings("CloneDoesntCallSuperClone")
 		public TextualComponent clone() throws CloneNotSupportedException {
 			// Since this is a private and final class, we can just reinstantiate this class instead of casting super.clone
 			return new ArbitraryTextTypeComponent(getKey(), getValue());
@@ -164,6 +166,7 @@ public abstract class TextualComponent implements Cloneable {
 		private Map<String, String> _value;
 		
 		@Override
+                @SuppressWarnings("CloneDoesntCallSuperClone")
 		public TextualComponent clone() throws CloneNotSupportedException {
 			// Since this is a private and final class, we can just reinstantiate this class instead of casting super.clone
 			return new ComplexTextTypeComponent(getKey(), getValue());
@@ -195,7 +198,7 @@ public abstract class TextualComponent implements Cloneable {
 			for(Map.Entry<String, Object> valEntry : map.entrySet()){
 				if(valEntry.getKey().equals("key")){
 					key = (String) valEntry.getValue();
-				}else if(valEntry.getKey().toString().startsWith("value.")){
+				}else if(valEntry.getKey().startsWith("value.")){
 					value.put(((String) valEntry.getKey()).substring(6) /* Strips out the value prefix */, valEntry.getValue().toString());
 				}
 			}
@@ -232,7 +235,7 @@ public abstract class TextualComponent implements Cloneable {
 		return new ArbitraryTextTypeComponent("translate", translateKey);
 	}
 	
-	private static final void throwUnsupportedSnapshot(){
+	private static void throwUnsupportedSnapshot(){
 		throw new UnsupportedOperationException("This feature is only supported in snapshot releases.");
 	}
 	
