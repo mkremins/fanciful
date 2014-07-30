@@ -23,7 +23,7 @@ public abstract class TextualComponent implements Cloneable {
 		ConfigurationSerialization.registerClass(TextualComponent.ComplexTextTypeComponent.class);
 	}
 	
-        @Override
+	@Override
 	public String toString() {
 		return getReadableString();
 	}
@@ -103,7 +103,6 @@ public abstract class TextualComponent implements Cloneable {
 		private String _value;
 		
 		@Override
-                @SuppressWarnings("CloneDoesntCallSuperClone")
 		public TextualComponent clone() throws CloneNotSupportedException {
 			// Since this is a private and final class, we can just reinstantiate this class instead of casting super.clone
 			return new ArbitraryTextTypeComponent(getKey(), getValue());
@@ -126,10 +125,10 @@ public abstract class TextualComponent implements Cloneable {
 			return new ArbitraryTextTypeComponent(map.get("key").toString(), map.get("value").toString());
 		}
 
-                @Override
-                public String getReadableString() {
-                    return getValue();
-                }
+		@Override
+        public String getReadableString() {
+			return getValue();
+		}
 	}
 	
 	/**
@@ -166,7 +165,6 @@ public abstract class TextualComponent implements Cloneable {
 		private Map<String, String> _value;
 		
 		@Override
-                @SuppressWarnings("CloneDoesntCallSuperClone")
 		public TextualComponent clone() throws CloneNotSupportedException {
 			// Since this is a private and final class, we can just reinstantiate this class instead of casting super.clone
 			return new ComplexTextTypeComponent(getKey(), getValue());
@@ -204,11 +202,11 @@ public abstract class TextualComponent implements Cloneable {
 			}
 			return new ComplexTextTypeComponent(key, value);
 		}
-                
-                @Override
-                public String getReadableString() {
-                    return getKey();
-                }
+		
+		@Override
+		public String getReadableString() {
+			return getKey();
+		}
 	}
 	
 	/**

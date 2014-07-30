@@ -36,7 +36,7 @@ import org.bukkit.inventory.ItemStack;
 
 /**
  * Represents a formattable message. Such messages can use elements such as colors, formatting codes, hover and click data, and other features provided by the vanilla Minecraft <a href="http://minecraft.gamepedia.com/Tellraw#Raw_JSON_Text">JSON message formatter</a>.
- * This class allows plugins to emulate the functionality of the vanilla minecraft <a href="http://minecraft.gamepedia.com/Commands#tellraw">tellraw command</a>.
+ * This class allows plugins to emulate the functionality of the vanilla Minecraft <a href="http://minecraft.gamepedia.com/Commands#tellraw">tellraw command</a>.
  * <p>
  * This class follows the builder pattern, allowing for method chaining.
  * It is set up such that invocations of property-setting methods will affect the current editing component,
@@ -87,10 +87,10 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 				nmsPacketPlayOutChatConstructor = Reflection.getNMSClass("PacketPlayOutChat").getDeclaredConstructor(Reflection.getNMSClass("IChatBaseComponent"));
 				nmsPacketPlayOutChatConstructor.setAccessible(true);
 			} catch (NoSuchMethodException e) {
-                                Bukkit.getLogger().log(Level.SEVERE, "Could not find mincraft method or constructor.", e);
+				Bukkit.getLogger().log(Level.SEVERE, "Could not find Minecraft method or constructor.", e);
 			} catch (SecurityException e) {
-                                Bukkit.getLogger().log(Level.WARNING, "Could not access constructor.", e);
-                        }
+				Bukkit.getLogger().log(Level.WARNING, "Could not access constructor.", e);
+			}
 		}
 	}
 
@@ -223,7 +223,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 			Object achievement = Reflection.getMethod(Reflection.getOBCClass("CraftStatistic"), "getNMSAchievement", Achievement.class).invoke(null, which);
 			return achievementTooltip((String) Reflection.getField(Reflection.getNMSClass("Achievement"), "name").get(achievement));
 		} catch (IllegalAccessException e) {
-                        Bukkit.getLogger().log(Level.WARNING, "Could not access methode.", e);
+                        Bukkit.getLogger().log(Level.WARNING, "Could not access method.", e);
 			return this;
 		} catch (IllegalArgumentException e) {
                         Bukkit.getLogger().log(Level.WARNING, "Argument could not be passed.", e);
@@ -250,7 +250,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 			Object statistic = Reflection.getMethod(Reflection.getOBCClass("CraftStatistic"), "getNMSStatistic", Statistic.class).invoke(null, which);
 			return achievementTooltip((String) Reflection.getField(Reflection.getNMSClass("Statistic"), "name").get(statistic));
 		} catch (IllegalAccessException e) {
-                        Bukkit.getLogger().log(Level.WARNING, "Could not access methode.", e);
+                        Bukkit.getLogger().log(Level.WARNING, "Could not access method.", e);
 			return this;
 		} catch (IllegalArgumentException e) {
                         Bukkit.getLogger().log(Level.WARNING, "Argument could not be passed.", e);
@@ -281,7 +281,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 			Object statistic = Reflection.getMethod(Reflection.getOBCClass("CraftStatistic"), "getMaterialStatistic", Statistic.class, Material.class).invoke(null, which, item);
 			return achievementTooltip((String) Reflection.getField(Reflection.getNMSClass("Statistic"), "name").get(statistic));
 		} catch (IllegalAccessException e) {
-                        Bukkit.getLogger().log(Level.WARNING, "Could not access methode.", e);
+                        Bukkit.getLogger().log(Level.WARNING, "Could not access method.", e);
 			return this;
 		} catch (IllegalArgumentException e) {
                         Bukkit.getLogger().log(Level.WARNING, "Argument could not be passed.", e);
@@ -312,7 +312,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 			Object statistic = Reflection.getMethod(Reflection.getOBCClass("CraftStatistic"), "getEntityStatistic", Statistic.class, EntityType.class).invoke(null, which, entity);
 			return achievementTooltip((String) Reflection.getField(Reflection.getNMSClass("Statistic"), "name").get(statistic));
 		} catch (IllegalAccessException e) {
-                        Bukkit.getLogger().log(Level.WARNING, "Could not access methode.", e);
+                        Bukkit.getLogger().log(Level.WARNING, "Could not access method.", e);
 			return this;
 		} catch (IllegalArgumentException e) {
                         Bukkit.getLogger().log(Level.WARNING, "Argument could not be passed.", e);
@@ -550,7 +550,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 		} catch (IllegalArgumentException e) {
                         Bukkit.getLogger().log(Level.WARNING, "Argument could not be passed.", e);
 		} catch (IllegalAccessException e) {
-                        Bukkit.getLogger().log(Level.WARNING, "Could not access methode.", e);
+                        Bukkit.getLogger().log(Level.WARNING, "Could not access method.", e);
                 } catch (InstantiationException e) {
                         Bukkit.getLogger().log(Level.WARNING, "Underlying class is abstract.", e);
                 } catch (InvocationTargetException e) {
