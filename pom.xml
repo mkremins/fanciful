@@ -4,7 +4,7 @@
 
   <groupId>mkremins</groupId>
   <artifactId>fanciful</artifactId>
-  <version>0.2.0-SNAPSHOT</version>
+  <version>0.2.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <properties>
@@ -27,10 +27,9 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.bukkit</groupId>
-      <artifactId>craftbukkit</artifactId>
-      <version>1.7.9-R0.1</version>
-      <scope>provided</scope>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.1</version>
     </dependency>
   </dependencies>
 
@@ -65,6 +64,35 @@
               <goal>site</goal>
             </goals>
             <phase>deploy</phase>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Shade GSON because it's no longer in Spigot. -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>2.2</version>
+        <configuration>
+          <createDependencyReducedPom>false</createDependencyReducedPom>
+          <artifactSet>
+            <includes>
+              <include>com.google.code.gson:gson</include>
+            </includes>
+          </artifactSet>
+          <relocations>
+            <relocation>
+              <pattern>com.google.gson</pattern>
+              <shadedPattern>mkremins.fanciful.shaded.gson</shadedPattern>
+            </relocation>
+          </relocations>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
           </execution>
         </executions>
       </plugin>
