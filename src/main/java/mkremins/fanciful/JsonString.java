@@ -6,8 +6,8 @@ import java.util.Map;
 
 import javax.annotation.concurrent.Immutable;
 
+import com.google.gson.stream.JsonWriter;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
-import org.bukkit.craftbukkit.libs.com.google.gson.stream.JsonWriter;
 
 /**
  * Represents a JSON string value.
@@ -22,7 +22,8 @@ final class JsonString implements JsonRepresentedObject, ConfigurationSerializab
 	public JsonString(String value){
 		_value = value;
 	}
-	
+
+	@Override
 	public void writeJson(JsonWriter writer) throws IOException {
 		writer.value(getValue());
 	}

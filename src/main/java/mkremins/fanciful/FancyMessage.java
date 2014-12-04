@@ -14,6 +14,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import static mkremins.fanciful.TextualComponent.rawText;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonWriter;
 import net.amoebaman.util.ArrayWrapper;
 import net.amoebaman.util.Reflection;
 import org.bukkit.Achievement;
@@ -25,11 +31,6 @@ import org.bukkit.Statistic.Type;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
-import org.bukkit.craftbukkit.libs.com.google.gson.JsonArray;
-import org.bukkit.craftbukkit.libs.com.google.gson.JsonElement;
-import org.bukkit.craftbukkit.libs.com.google.gson.JsonObject;
-import org.bukkit.craftbukkit.libs.com.google.gson.JsonParser;
-import org.bukkit.craftbukkit.libs.com.google.gson.stream.JsonWriter;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -495,6 +496,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 		return this;
 	}
 
+	@Override
 	public void writeJson(JsonWriter writer) throws IOException{
 		if (messageParts.size() == 1) {
 			latest().writeJson(writer);
@@ -559,16 +561,16 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
         }
 
 	// The ChatSerializer's instance of Gson
-	private static net.minecraft.util.com.google.gson.Gson nmsChatSerializerGsonInstance;
+	private static com.google.gson.Gson nmsChatSerializerGsonInstance;
 
 	private Object createChatPacket(String json) throws IllegalArgumentException, IllegalAccessException, InstantiationException, InvocationTargetException{
 		if(nmsChatSerializerGsonInstance == null){
 			// Find the field and its value, completely bypassing obfuscation
 			for(Field declaredField : Reflection.getNMSClass("ChatSerializer").getDeclaredFields()){
-				if(Modifier.isFinal(declaredField.getModifiers()) && Modifier.isStatic(declaredField.getModifiers()) && declaredField.getType() == net.minecraft.util.com.google.gson.Gson.class){
+				if(Modifier.isFinal(declaredField.getModifiers()) && Modifier.isStatic(declaredField.getModifiers()) && declaredField.getType() == com.google.gson.Gson.class){
 					// We've found our field
 					declaredField.setAccessible(true);
-					nmsChatSerializerGsonInstance = (net.minecraft.util.com.google.gson.Gson)declaredField.get(null);
+					nmsChatSerializerGsonInstance = (com.google.gson.Gson)declaredField.get(null);
 					break;
 				}
 			}
