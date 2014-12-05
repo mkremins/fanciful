@@ -5,6 +5,7 @@ import java.io.StringWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -557,20 +558,24 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
                         Bukkit.getLogger().log(Level.WARNING, "Underlying class is abstract.", e);
                 } catch (InvocationTargetException e) {
                         Bukkit.getLogger().log(Level.WARNING, "A error has occured durring invoking of method.", e);
+                } catch (NoSuchMethodException e) {
+                        Bukkit.getLogger().log(Level.WARNING, "Could not find method.", e);
                 }
         }
 
 	// The ChatSerializer's instance of Gson
-	private static com.google.gson.Gson nmsChatSerializerGsonInstance;
+	private static Object nmsChatSerializerGsonInstance;
+	private static Method fromJsonMethod;
 
-	private Object createChatPacket(String json) throws IllegalArgumentException, IllegalAccessException, InstantiationException, InvocationTargetException{
+	private Object createChatPacket(String json) throws IllegalArgumentException, IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException {
 		if(nmsChatSerializerGsonInstance == null){
 			// Find the field and its value, completely bypassing obfuscation
 			for(Field declaredField : Reflection.getNMSClass("ChatSerializer").getDeclaredFields()){
-				if(Modifier.isFinal(declaredField.getModifiers()) && Modifier.isStatic(declaredField.getModifiers()) && declaredField.getType() == com.google.gson.Gson.class){
+				if(Modifier.isFinal(declaredField.getModifiers()) && Modifier.isStatic(declaredField.getModifiers()) && declaredField.getType().getName().endsWith("Gson")){
 					// We've found our field
 					declaredField.setAccessible(true);
-					nmsChatSerializerGsonInstance = (com.google.gson.Gson)declaredField.get(null);
+					nmsChatSerializerGsonInstance = declaredField.get(null);
+					fromJsonMethod = nmsChatSerializerGsonInstance.getClass().getMethod("fromJson", String.class, Class.class);
 					break;
 				}
 			}
@@ -578,7 +583,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 
 		// Since the method is so simple, and all the obfuscated methods have the same name, it's easier to reimplement 'IChatBaseComponent a(String)' than to reflectively call it
 		// Of course, the implementation may change, but fuzzy matches might break with signature changes
-		Object serializedChatComponent = nmsChatSerializerGsonInstance.fromJson(json, Reflection.getNMSClass("IChatBaseComponent"));
+		Object serializedChatComponent = fromJsonMethod.invoke(nmsChatSerializerGsonInstance, json, Reflection.getNMSClass("IChatBaseComponent"));
 
 		return nmsPacketPlayOutChatConstructor.newInstance(serializedChatComponent);
 	}
