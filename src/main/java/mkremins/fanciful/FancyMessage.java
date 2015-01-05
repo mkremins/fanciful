@@ -189,6 +189,17 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 		onClick("suggest_command", command);
 		return this;
 	}
+	
+	/**
+	 * Set the behavior of the current editing component to instruct the client to append the chat input box content with the specified string when the currently edited part of the {@code FancyMessage} is SHIFT-CLICKED.
+	 * The client will not immediately send the command to the server to be executed unless the client player submits the command/chat message, usually with the enter key.
+	 * @param command The text to append to the chat bar of the client.
+	 * @return This builder instance.
+	 */
+	public FancyMessage insert(final String command) {
+		latest().insertionData = command;
+		return this;
+	}
 
 	/**
 	 * Set the behavior of the current editing component to instruct the client to send the specified string to the server as a chat message when the currently edited part of the {@code FancyMessage} is clicked.
@@ -739,6 +750,8 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 						// Therefore, recursion time!
 						component.hoverActionData = deserialize(object.get("value").toString() /* This should properly serialize the JSON object as a JSON string */);
 					}
+				}else if(entry.getKey().equals("insertion")){
+					component.insertionData = entry.getValue().getAsString();
 				}
 			}
 			returnVal.messageParts.add(component);
