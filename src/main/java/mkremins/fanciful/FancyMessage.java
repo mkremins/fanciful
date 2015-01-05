@@ -360,6 +360,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 			return this;
 		}
 	}
+	
 
 	/**
 	 * Set the behavior of the current editing component to display raw text when the client hovers over the text.
@@ -467,6 +468,57 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 		return formattedTooltip(ArrayWrapper.toArray(lines, FancyMessage.class));
 	}
 
+	/**
+	 * If the text is a translatable key, and it has replaceable values, this function can be used to set the replacements that will be used in the message.
+	 * @param replacements The replacements, in order, that will be used in the language-specific message.
+	 * @return This builder instance.
+	 */
+	public FancyMessage translationReplacements(final String... replacements){
+		for(String str : replacements){
+			latest().translationReplacements.add(new JsonString(str));
+		}
+		
+		return this;
+	}
+	/*
+	
+	/**
+	 * If the text is a translatable key, and it has replaceable values, this function can be used to set the replacements that will be used in the message.
+	 * @param replacements The replacements, in order, that will be used in the language-specific message.
+	 * @return This builder instance.
+	 */   /* ------------
+	public FancyMessage translationReplacements(final Iterable<? extends CharSequence> replacements){
+		for(CharSequence str : replacements){
+			latest().translationReplacements.add(new JsonString(str));
+		}
+		
+		return this;
+	}
+	
+	*/
+	
+	/**
+	 * If the text is a translatable key, and it has replaceable values, this function can be used to set the replacements that will be used in the message.
+	 * @param replacements The replacements, in order, that will be used in the language-specific message.
+	 * @return This builder instance.
+	 */
+	public FancyMessage translationReplacements(final FancyMessage... replacements){
+		for(FancyMessage str : replacements){
+			latest().translationReplacements.add(str);
+		}
+		
+		return this;
+	}
+	
+	/**
+	 * If the text is a translatable key, and it has replaceable values, this function can be used to set the replacements that will be used in the message.
+	 * @param replacements The replacements, in order, that will be used in the language-specific message.
+	 * @return This builder instance.
+	 */
+	public FancyMessage translationReplacements(final Iterable<FancyMessage> replacements){		
+		return translationReplacements(ArrayWrapper.toArray(replacements, FancyMessage.class));
+	}
+	
 	/**
 	 * Terminate construction of the current editing component, and begin construction of a new message component.
 	 * After a successful call to this method, all setter methods will refer to a new message component, created as a result of the call to this method.
@@ -752,6 +804,16 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 					}
 				}else if(entry.getKey().equals("insertion")){
 					component.insertionData = entry.getValue().getAsString();
+				}else if(entry.getKey().equals("with")){
+					for(JsonElement object : entry.getValue().getAsJsonArray()){
+						if(object.isJsonPrimitive()){
+							component.translationReplacements.add(new JsonString(object.getAsString()));
+						}else{
+							// Only composite type stored in this array is - again - FancyMessages
+							// Recurse within this function to parse this as a translation replacement
+							component.translationReplacements.add(deserialize(object.toString()));
+						}
+					}
 				}
 			}
 			returnVal.messageParts.add(component);

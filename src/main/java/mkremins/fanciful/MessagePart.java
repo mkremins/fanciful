@@ -27,6 +27,7 @@ final class MessagePart implements JsonRepresentedObject, ConfigurationSerializa
 	JsonRepresentedObject hoverActionData = null;
 	TextualComponent text = null;
 	String insertionData = null;
+	ArrayList<JsonRepresentedObject> translationReplacements = new ArrayList<JsonRepresentedObject>();
 
 	MessagePart(final TextualComponent text){
 		this.text = text;
@@ -50,6 +51,7 @@ final class MessagePart implements JsonRepresentedObject, ConfigurationSerializa
 		}else if(hoverActionData instanceof FancyMessage){
 			obj.hoverActionData = ((FancyMessage)hoverActionData).clone();
 		}
+		obj.translationReplacements = (ArrayList<JsonRepresentedObject>)translationReplacements.clone();
 		return obj;
 
 	}
@@ -104,6 +106,13 @@ final class MessagePart implements JsonRepresentedObject, ConfigurationSerializa
 			if(insertionData != null){
 				json.name("insertion").value(insertionData);
 			}
+			if(translationReplacements.size() > 0 && text != null && TextualComponent.isTranslatableText(text)){
+				json.name("with").beginArray();
+				for(JsonRepresentedObject obj : translationReplacements){
+					obj.writeJson(json);
+				}
+				json.endArray();
+			}
 			json.endObject();
 		} catch(IOException e){
 			Bukkit.getLogger().log(Level.WARNING, "A problem occured during writing of JSON string", e);
@@ -120,6 +129,7 @@ final class MessagePart implements JsonRepresentedObject, ConfigurationSerializa
 		map.put("clickActionName", clickActionName);
 		map.put("clickActionData", clickActionData);
 		map.put("insertion", insertionData);
+		map.put("translationReplacements", translationReplacements);
 		return map;
 	}
 
