@@ -115,6 +115,11 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 		return this;
 	}
 
+	/**
+	 * Sets the text of the current editing component to a value.
+	 * @param text The new text of the current editing component.
+	 * @return This builder instance.
+	 */
 	public FancyMessage text(TextualComponent text) {
 		MessagePart latest = latest();
 		latest.text = text;
@@ -126,6 +131,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 	 * Sets the color of the current editing component to a value.
 	 * @param color The new color of the current editing component.
 	 * @return This builder instance.
+	 * @exception IllegalArgumentException If the specified {@code ChatColor} enumeration value is not a color (but a format value).
 	 */
 	public FancyMessage color(final ChatColor color) {
 		if (!color.isColor()) {
