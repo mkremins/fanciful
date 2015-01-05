@@ -143,6 +143,7 @@ final class MessagePart implements JsonRepresentedObject, ConfigurationSerializa
 		part.clickActionName = (String)serialized.get("clickActionName");
 		part.clickActionData = (String)serialized.get("clickActionData");
 		part.insertionData = (String)serialized.get("insertion");
+		part.translationReplacements = (ArrayList<JsonRepresentedObject>)serialized.get("translationReplacements");
 		return part;
 	}
 
