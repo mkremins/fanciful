@@ -9,13 +9,13 @@ Use Maven. Add the Fanciful repository and dependency entries to your `pom.xml`.
 ```xml
 <repository>
   <id>fanciful-mvn-repo</id>
-  <url>https://raw.github.com/mkremins/fanciful/mvn-repo/</url>
+  <url>http://repo.franga2000.com/artifactory/public</url>
 </repository>
 
 <dependency>
   <groupId>mkremins</groupId>
   <artifactId>fanciful</artifactId>
-  <version>0.1.5</version>
+  <version>0.3.0</version>
 </dependency>
 ```
 
