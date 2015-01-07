@@ -1,4 +1,4 @@
-Fanciful
+Fanciful [![Build Status](http://ci.franga2000.com/buildStatus/icon?job=Fanciful)](http://ci.franga2000.com/job/Fanciful/)
 ========
 Lightweight library offering pleasant chat message formatting for Bukkit plugins. A way to get at the good stuff offered by Minecraft 1.7's new chat protocol without dropping down to raw JSON.
 
