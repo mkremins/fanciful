@@ -26,6 +26,8 @@ final class MessagePart implements JsonRepresentedObject, ConfigurationSerializa
 			hoverActionName = null;
 	JsonRepresentedObject hoverActionData = null;
 	TextualComponent text = null;
+	String insertionData = null;
+	ArrayList<JsonRepresentedObject> translationReplacements = new ArrayList<JsonRepresentedObject>();
 
 	MessagePart(final TextualComponent text){
 		this.text = text;
@@ -49,6 +51,7 @@ final class MessagePart implements JsonRepresentedObject, ConfigurationSerializa
 		}else if(hoverActionData instanceof FancyMessage){
 			obj.hoverActionData = ((FancyMessage)hoverActionData).clone();
 		}
+		obj.translationReplacements = (ArrayList<JsonRepresentedObject>)translationReplacements.clone();
 		return obj;
 
 	}
@@ -100,6 +103,16 @@ final class MessagePart implements JsonRepresentedObject, ConfigurationSerializa
 				hoverActionData.writeJson(json);
 				json.endObject();
 			}
+			if(insertionData != null){
+				json.name("insertion").value(insertionData);
+			}
+			if(translationReplacements.size() > 0 && text != null && TextualComponent.isTranslatableText(text)){
+				json.name("with").beginArray();
+				for(JsonRepresentedObject obj : translationReplacements){
+					obj.writeJson(json);
+				}
+				json.endArray();
+			}
 			json.endObject();
 		} catch(IOException e){
 			Bukkit.getLogger().log(Level.WARNING, "A problem occured during writing of JSON string", e);
@@ -115,6 +128,8 @@ final class MessagePart implements JsonRepresentedObject, ConfigurationSerializa
 		map.put("hoverActionData", hoverActionData);
 		map.put("clickActionName", clickActionName);
 		map.put("clickActionData", clickActionData);
+		map.put("insertion", insertionData);
+		map.put("translationReplacements", translationReplacements);
 		return map;
 	}
 
@@ -123,10 +138,12 @@ final class MessagePart implements JsonRepresentedObject, ConfigurationSerializa
 		MessagePart part = new MessagePart((TextualComponent)serialized.get("text"));
 		part.styles = (ArrayList<ChatColor>)serialized.get("styles");
 		part.color = ChatColor.getByChar(serialized.get("color").toString());
-		part.hoverActionName = serialized.get("hoverActionName").toString();
+		part.hoverActionName = (String)serialized.get("hoverActionName");
 		part.hoverActionData = (JsonRepresentedObject)serialized.get("hoverActionData");
-		part.clickActionName = serialized.get("clickActionName").toString();
-		part.clickActionData = serialized.get("clickActionData").toString();
+		part.clickActionName = (String)serialized.get("clickActionName");
+		part.clickActionData = (String)serialized.get("clickActionData");
+		part.insertionData = (String)serialized.get("insertion");
+		part.translationReplacements = (ArrayList<JsonRepresentedObject>)serialized.get("translationReplacements");
 		return part;
 	}
 

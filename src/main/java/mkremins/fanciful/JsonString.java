@@ -16,8 +16,8 @@ final class JsonString implements JsonRepresentedObject, ConfigurationSerializab
 
 	private String _value;
 	
-	public JsonString(String value){
-		_value = value;
+	public JsonString(CharSequence value){
+		_value = value == null ? null : value.toString();
 	}
 
 	@Override

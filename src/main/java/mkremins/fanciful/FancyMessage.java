@@ -115,6 +115,11 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 		return this;
 	}
 
+	/**
+	 * Sets the text of the current editing component to a value.
+	 * @param text The new text of the current editing component.
+	 * @return This builder instance.
+	 */
 	public FancyMessage text(TextualComponent text) {
 		MessagePart latest = latest();
 		latest.text = text;
@@ -126,6 +131,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 	 * Sets the color of the current editing component to a value.
 	 * @param color The new color of the current editing component.
 	 * @return This builder instance.
+	 * @exception IllegalArgumentException If the specified {@code ChatColor} enumeration value is not a color (but a format value).
 	 */
 	public FancyMessage color(final ChatColor color) {
 		if (!color.isColor()) {
@@ -181,6 +187,18 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 	 */
 	public FancyMessage suggest(final String command) {
 		onClick("suggest_command", command);
+		return this;
+	}
+	
+	/**
+	 * Set the behavior of the current editing component to instruct the client to append the chat input box content with the specified string when the currently edited part of the {@code FancyMessage} is SHIFT-CLICKED.
+	 * The client will not immediately send the command to the server to be executed unless the client player submits the command/chat message, usually with the enter key.
+	 * @param command The text to append to the chat bar of the client.
+	 * @return This builder instance.
+	 */
+	public FancyMessage insert(final String command) {
+		latest().insertionData = command;
+		dirty = true;
 		return this;
 	}
 
@@ -343,6 +361,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 			return this;
 		}
 	}
+	
 
 	/**
 	 * Set the behavior of the current editing component to display raw text when the client hovers over the text.
@@ -450,6 +469,60 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 		return formattedTooltip(ArrayWrapper.toArray(lines, FancyMessage.class));
 	}
 
+	/**
+	 * If the text is a translatable key, and it has replaceable values, this function can be used to set the replacements that will be used in the message.
+	 * @param replacements The replacements, in order, that will be used in the language-specific message.
+	 * @return This builder instance.
+	 */
+	public FancyMessage translationReplacements(final String... replacements){
+		for(String str : replacements){
+			latest().translationReplacements.add(new JsonString(str));
+		}
+		dirty = true;
+		
+		return this;
+	}
+	/*
+	
+	/**
+	 * If the text is a translatable key, and it has replaceable values, this function can be used to set the replacements that will be used in the message.
+	 * @param replacements The replacements, in order, that will be used in the language-specific message.
+	 * @return This builder instance.
+	 */   /* ------------
+	public FancyMessage translationReplacements(final Iterable<? extends CharSequence> replacements){
+		for(CharSequence str : replacements){
+			latest().translationReplacements.add(new JsonString(str));
+		}
+		
+		return this;
+	}
+	
+	*/
+	
+	/**
+	 * If the text is a translatable key, and it has replaceable values, this function can be used to set the replacements that will be used in the message.
+	 * @param replacements The replacements, in order, that will be used in the language-specific message.
+	 * @return This builder instance.
+	 */
+	public FancyMessage translationReplacements(final FancyMessage... replacements){
+		for(FancyMessage str : replacements){
+			latest().translationReplacements.add(str);
+		}
+		
+		dirty = true;
+		
+		return this;
+	}
+	
+	/**
+	 * If the text is a translatable key, and it has replaceable values, this function can be used to set the replacements that will be used in the message.
+	 * @param replacements The replacements, in order, that will be used in the language-specific message.
+	 * @return This builder instance.
+	 */
+	public FancyMessage translationReplacements(final Iterable<FancyMessage> replacements){		
+		return translationReplacements(ArrayWrapper.toArray(replacements, FancyMessage.class));
+	}
+	
 	/**
 	 * Terminate construction of the current editing component, and begin construction of a new message component.
 	 * After a successful call to this method, all setter methods will refer to a new message component, created as a result of the call to this method.
@@ -732,6 +805,18 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 						// The only composite type we currently store is another FancyMessage
 						// Therefore, recursion time!
 						component.hoverActionData = deserialize(object.get("value").toString() /* This should properly serialize the JSON object as a JSON string */);
+					}
+				}else if(entry.getKey().equals("insertion")){
+					component.insertionData = entry.getValue().getAsString();
+				}else if(entry.getKey().equals("with")){
+					for(JsonElement object : entry.getValue().getAsJsonArray()){
+						if(object.isJsonPrimitive()){
+							component.translationReplacements.add(new JsonString(object.getAsString()));
+						}else{
+							// Only composite type stored in this array is - again - FancyMessages
+							// Recurse within this function to parse this as a translation replacement
+							component.translationReplacements.add(deserialize(object.toString()));
+						}
 					}
 				}
 			}
