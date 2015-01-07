@@ -198,6 +198,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 	 */
 	public FancyMessage insert(final String command) {
 		latest().insertionData = command;
+		dirty = true;
 		return this;
 	}
 
@@ -477,6 +478,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 		for(String str : replacements){
 			latest().translationReplacements.add(new JsonString(str));
 		}
+		dirty = true;
 		
 		return this;
 	}
@@ -506,6 +508,8 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 		for(FancyMessage str : replacements){
 			latest().translationReplacements.add(str);
 		}
+		
+		dirty = true;
 		
 		return this;
 	}
