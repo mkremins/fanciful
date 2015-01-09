@@ -3,7 +3,7 @@
 
 	<groupId>mkremins</groupId>
 	<artifactId>fanciful</artifactId>
-	<version>0.3.1</version>
+	<version>0.3.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<properties>
