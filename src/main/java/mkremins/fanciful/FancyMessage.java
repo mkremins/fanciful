@@ -625,6 +625,8 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
                         Bukkit.getLogger().log(Level.WARNING, "A error has occured durring invoking of method.", e);
                 } catch (NoSuchMethodException e) {
                         Bukkit.getLogger().log(Level.WARNING, "Could not find method.", e);
+                } catch (ClassNotFoundException e) {
+                        Bukkit.getLogger().log(Level.WARNING, "Could not find class.", e);
                 }
         }
 
@@ -632,11 +634,27 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 	private static Object nmsChatSerializerGsonInstance;
 	private static Method fromJsonMethod;
 
-	private Object createChatPacket(String json) throws IllegalArgumentException, IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException {
+	private Object createChatPacket(String json) throws IllegalArgumentException, IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException {
 		if(nmsChatSerializerGsonInstance == null){
 			// Find the field and its value, completely bypassing obfuscation
-			for(Field declaredField : Reflection.getNMSClass("ChatSerializer").getDeclaredFields()){
-				if(Modifier.isFinal(declaredField.getModifiers()) && Modifier.isStatic(declaredField.getModifiers()) && declaredField.getType().getName().endsWith("Gson")){
+			Class<?> chatSerializerClazz;
+
+			String version = Reflection.getVersion();
+			double majorVersion = Double.parseDouble(version.replace('_', '.').substring(1, 4));
+			int lesserVersion = Integer.parseInt(version.substring(6, 7));
+
+			if (majorVersion < 1.8 || (majorVersion == 1.8 && lesserVersion == 1)) {
+				chatSerializerClazz = Reflection.getNMSClass("ChatSerializer");
+			} else {
+				chatSerializerClazz = Reflection.getNMSClass("IChatBaseComponent$ChatSerializer");
+			}
+
+			if (chatSerializerClazz == null) {
+				throw new ClassNotFoundException("Can't find the ChatSerializer class");
+			}
+
+			for (Field declaredField : chatSerializerClazz.getDeclaredFields()) {
+				if (Modifier.isFinal(declaredField.getModifiers()) && Modifier.isStatic(declaredField.getModifiers()) && declaredField.getType().getName().endsWith("Gson")) {
 					// We've found our field
 					declaredField.setAccessible(true);
 					nmsChatSerializerGsonInstance = declaredField.get(null);
