@@ -33,10 +33,14 @@
 
 	<distributionManagement>
 		<repository>
-			<id>franga2000-repo</id>
-			<name>public-releases</name>
-			<url>http://repo.franga2000.com/artifactory/public</url>
+			<id>stealthyone-releases</id>
+			<url>http://repo.stealthyone.com/content/repositories/releases/</url>
 		</repository>
+
+		<snapshotRepository>
+			<id>stealthyone-snapshots</id>
+			<url>http://repo.stealthyone.com/content/repositories/snapshots/</url>
+		</snapshotRepository>
 	</distributionManagement>
 
 	<build>
