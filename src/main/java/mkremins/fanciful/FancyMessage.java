@@ -670,14 +670,18 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 			// Find the field and its value, completely bypassing obfuscation
 			Class<?> chatSerializerClazz;
 
-			String version = Reflection.getVersion();
-			double majorVersion = Double.parseDouble(version.replace('_', '.').substring(1, 4));
-			int lesserVersion = 0;
-			if (majorVersion == 1.8) {
-				lesserVersion = Integer.parseInt(version.substring(6, 7));
-			}
+			// Get the three parts of the version string (major version is currently unused)
+			// vX_Y_RZ
+			//   X = major
+			//   Y = minor
+			//   Z = revision
+			final String version = Reflection.getVersion();
+			String[] split = version.substring(1, version.length() - 1).split("_"); // Remove trailing dot
+			//int majorVersion = Integer.parseInt(split[0]);
+			int minorVersion = Integer.parseInt(split[1]);
+			int revisionVersion = Integer.parseInt(split[2].substring(1)); // Substring to ignore R
 
-			if (majorVersion < 1.8 || (majorVersion == 1.8 && lesserVersion == 1)) {
+			if (minorVersion < 8 || (minorVersion == 8 && revisionVersion == 1)) {
 				chatSerializerClazz = Reflection.getNMSClass("ChatSerializer");
 			} else {
 				chatSerializerClazz = Reflection.getNMSClass("IChatBaseComponent$ChatSerializer");
