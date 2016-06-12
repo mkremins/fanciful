@@ -3,7 +3,7 @@
 
 	<groupId>mkremins</groupId>
 	<artifactId>fanciful</artifactId>
-	<version>0.3.2-SNAPSHOT</version>
+	<version>0.3.5-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<properties>
@@ -21,7 +21,7 @@
 		<dependency>
 			<groupId>org.bukkit</groupId>
 			<artifactId>bukkit</artifactId>
-			<version>1.8-R0.1-SNAPSHOT</version>
+			<version>1.10-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -33,10 +33,14 @@
 
 	<distributionManagement>
 		<repository>
-			<id>franga2000-repo</id>
-			<name>public-releases</name>
-			<url>http://repo.franga2000.com/artifactory/public</url>
+			<id>stealthyone-releases</id>
+			<url>http://repo.stealthyone.com/content/repositories/releases/</url>
 		</repository>
+
+		<snapshotRepository>
+			<id>stealthyone-snapshots</id>
+			<url>http://repo.stealthyone.com/content/repositories/snapshots/</url>
+		</snapshotRepository>
 	</distributionManagement>
 
 	<build>

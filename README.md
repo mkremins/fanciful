@@ -1,4 +1,4 @@
-Fanciful [![Build Status](http://ci.franga2000.com/buildStatus/icon?job=Fanciful)](http://ci.franga2000.com/job/Fanciful/)
+Fanciful
 ========
 Lightweight library offering pleasant chat message formatting for Bukkit plugins. A way to get at the good stuff offered by Minecraft 1.7's new chat protocol without dropping down to raw JSON.
 
@@ -8,14 +8,14 @@ Use Maven. Add the Fanciful repository and dependency entries to your `pom.xml`.
 
 ```xml
 <repository>
-  <id>fanciful-mvn-repo</id>
-  <url>http://repo.franga2000.com/artifactory/public</url>
+    <id>stealthyone-repo</id>
+    <url>http://repo.stealthyone.com/content/groups/public</url>
 </repository>
 
 <dependency>
   <groupId>mkremins</groupId>
   <artifactId>fanciful</artifactId>
-  <version>0.3.1</version>
+  <version>0.3.5-SNAPSHOT</version>
 </dependency>
 ```
 
