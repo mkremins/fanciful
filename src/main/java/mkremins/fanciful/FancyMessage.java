@@ -6,27 +6,14 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonWriter;
 import net.amoebaman.util.ArrayWrapper;
-import net.amoebaman.util.Reflection;
-import org.bukkit.Achievement;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.Statistic;
-import org.bukkit.Statistic.Type;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-
 import java.io.IOException;
 import java.io.StringWriter;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -56,9 +43,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 	private List<MessagePart> messageParts;
 	private String jsonString;
 	private boolean dirty;
-
-	private static Constructor<?> nmsPacketPlayOutChatConstructor;
-
+	
 	@Override
 	public FancyMessage clone() throws CloneNotSupportedException {
 		FancyMessage instance = (FancyMessage) super.clone();
@@ -85,17 +70,6 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 		messageParts.add(new MessagePart(firstPartText));
 		jsonString = null;
 		dirty = false;
-
-		if (nmsPacketPlayOutChatConstructor == null) {
-			try {
-				nmsPacketPlayOutChatConstructor = Reflection.getNMSClass("PacketPlayOutChat").getDeclaredConstructor(Reflection.getNMSClass("IChatBaseComponent"));
-				nmsPacketPlayOutChatConstructor.setAccessible(true);
-			} catch (NoSuchMethodException e) {
-				Bukkit.getLogger().log(Level.SEVERE, "Could not find Minecraft method or constructor.", e);
-			} catch (SecurityException e) {
-				Bukkit.getLogger().log(Level.WARNING, "Could not access constructor.", e);
-			}
-		}
 	}
 
 	/**
@@ -234,150 +208,6 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 	public FancyMessage achievementTooltip(final String name) {
 		onHover("show_achievement", new JsonString("achievement." + name));
 		return this;
-	}
-
-	/**
-	 * Set the behavior of the current editing component to display information about an achievement when the client hovers over the text.
-	 * <p>Tooltips do not inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
-	 *
-	 * @param which The achievement to display.
-	 * @return This builder instance.
-	 */
-	public FancyMessage achievementTooltip(final Achievement which) {
-		try {
-			Object achievement = Reflection.getMethod(Reflection.getOBCClass("CraftStatistic"), "getNMSAchievement", Achievement.class).invoke(null, which);
-			return achievementTooltip((String) Reflection.getField(Reflection.getNMSClass("Achievement"), "name").get(achievement));
-		} catch (IllegalAccessException e) {
-			Bukkit.getLogger().log(Level.WARNING, "Could not access method.", e);
-			return this;
-		} catch (IllegalArgumentException e) {
-			Bukkit.getLogger().log(Level.WARNING, "Argument could not be passed.", e);
-			return this;
-		} catch (InvocationTargetException e) {
-			Bukkit.getLogger().log(Level.WARNING, "A error has occured durring invoking of method.", e);
-			return this;
-		}
-	}
-
-	/**
-	 * Set the behavior of the current editing component to display information about a parameterless statistic when the client hovers over the text.
-	 * <p>Tooltips do not inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
-	 *
-	 * @param which The statistic to display.
-	 * @return This builder instance.
-	 * @throws IllegalArgumentException If the statistic requires a parameter which was not supplied.
-	 */
-	public FancyMessage statisticTooltip(final Statistic which) {
-		Type type = which.getType();
-		if (type != Type.UNTYPED) {
-			throw new IllegalArgumentException("That statistic requires an additional " + type + " parameter!");
-		}
-		try {
-			Object statistic = Reflection.getMethod(Reflection.getOBCClass("CraftStatistic"), "getNMSStatistic", Statistic.class).invoke(null, which);
-			return achievementTooltip((String) Reflection.getField(Reflection.getNMSClass("Statistic"), "name").get(statistic));
-		} catch (IllegalAccessException e) {
-			Bukkit.getLogger().log(Level.WARNING, "Could not access method.", e);
-			return this;
-		} catch (IllegalArgumentException e) {
-			Bukkit.getLogger().log(Level.WARNING, "Argument could not be passed.", e);
-			return this;
-		} catch (InvocationTargetException e) {
-			Bukkit.getLogger().log(Level.WARNING, "A error has occured durring invoking of method.", e);
-			return this;
-		}
-	}
-
-	/**
-	 * Set the behavior of the current editing component to display information about a statistic parameter with a material when the client hovers over the text.
-	 * <p>Tooltips do not inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
-	 *
-	 * @param which The statistic to display.
-	 * @param item  The sole material parameter to the statistic.
-	 * @return This builder instance.
-	 * @throws IllegalArgumentException If the statistic requires a parameter which was not supplied, or was supplied a parameter that was not required.
-	 */
-	public FancyMessage statisticTooltip(final Statistic which, Material item) {
-		Type type = which.getType();
-		if (type == Type.UNTYPED) {
-			throw new IllegalArgumentException("That statistic needs no additional parameter!");
-		}
-		if ((type == Type.BLOCK && item.isBlock()) || type == Type.ENTITY) {
-			throw new IllegalArgumentException("Wrong parameter type for that statistic - needs " + type + "!");
-		}
-		try {
-			Object statistic = Reflection.getMethod(Reflection.getOBCClass("CraftStatistic"), "getMaterialStatistic", Statistic.class, Material.class).invoke(null, which, item);
-			return achievementTooltip((String) Reflection.getField(Reflection.getNMSClass("Statistic"), "name").get(statistic));
-		} catch (IllegalAccessException e) {
-			Bukkit.getLogger().log(Level.WARNING, "Could not access method.", e);
-			return this;
-		} catch (IllegalArgumentException e) {
-			Bukkit.getLogger().log(Level.WARNING, "Argument could not be passed.", e);
-			return this;
-		} catch (InvocationTargetException e) {
-			Bukkit.getLogger().log(Level.WARNING, "A error has occured durring invoking of method.", e);
-			return this;
-		}
-	}
-
-	/**
-	 * Set the behavior of the current editing component to display information about a statistic parameter with an entity type when the client hovers over the text.
-	 * <p>Tooltips do not inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
-	 *
-	 * @param which  The statistic to display.
-	 * @param entity The sole entity type parameter to the statistic.
-	 * @return This builder instance.
-	 * @throws IllegalArgumentException If the statistic requires a parameter which was not supplied, or was supplied a parameter that was not required.
-	 */
-	public FancyMessage statisticTooltip(final Statistic which, EntityType entity) {
-		Type type = which.getType();
-		if (type == Type.UNTYPED) {
-			throw new IllegalArgumentException("That statistic needs no additional parameter!");
-		}
-		if (type != Type.ENTITY) {
-			throw new IllegalArgumentException("Wrong parameter type for that statistic - needs " + type + "!");
-		}
-		try {
-			Object statistic = Reflection.getMethod(Reflection.getOBCClass("CraftStatistic"), "getEntityStatistic", Statistic.class, EntityType.class).invoke(null, which, entity);
-			return achievementTooltip((String) Reflection.getField(Reflection.getNMSClass("Statistic"), "name").get(statistic));
-		} catch (IllegalAccessException e) {
-			Bukkit.getLogger().log(Level.WARNING, "Could not access method.", e);
-			return this;
-		} catch (IllegalArgumentException e) {
-			Bukkit.getLogger().log(Level.WARNING, "Argument could not be passed.", e);
-			return this;
-		} catch (InvocationTargetException e) {
-			Bukkit.getLogger().log(Level.WARNING, "A error has occured durring invoking of method.", e);
-			return this;
-		}
-	}
-
-	/**
-	 * Set the behavior of the current editing component to display information about an item when the client hovers over the text.
-	 * <p>Tooltips do not inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
-	 *
-	 * @param itemJSON A string representing the JSON-serialized NBT data tag of an {@link ItemStack}.
-	 * @return This builder instance.
-	 */
-	public FancyMessage itemTooltip(final String itemJSON) {
-		onHover("show_item", new JsonString(itemJSON)); // Seems a bit hacky, considering we have a JSON object as a parameter
-		return this;
-	}
-
-	/**
-	 * Set the behavior of the current editing component to display information about an item when the client hovers over the text.
-	 * <p>Tooltips do not inherit display characteristics, such as color and styles, from the message component on which they are applied.</p>
-	 *
-	 * @param itemStack The stack for which to display information.
-	 * @return This builder instance.
-	 */
-	public FancyMessage itemTooltip(final ItemStack itemStack) {
-		try {
-			Object nmsItem = Reflection.getMethod(Reflection.getOBCClass("inventory.CraftItemStack"), "asNMSCopy", ItemStack.class).invoke(null, itemStack);
-			return itemTooltip(Reflection.getMethod(Reflection.getNMSClass("ItemStack"), "save", Reflection.getNMSClass("NBTTagCompound")).invoke(nmsItem, Reflection.getNMSClass("NBTTagCompound").newInstance()).toString());
-		} catch (Exception e) {
-			e.printStackTrace();
-			return this;
-		}
 	}
 
 	/**
@@ -642,71 +472,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 			return;
 		}
 		Player player = (Player) sender;
-		try {
-			Object handle = Reflection.getHandle(player);
-			Object connection = Reflection.getField(handle.getClass(), "playerConnection").get(handle);
-			Reflection.getMethod(connection.getClass(), "sendPacket", Reflection.getNMSClass("Packet")).invoke(connection, createChatPacket(jsonString));
-		} catch (IllegalArgumentException e) {
-			Bukkit.getLogger().log(Level.WARNING, "Argument could not be passed.", e);
-		} catch (IllegalAccessException e) {
-			Bukkit.getLogger().log(Level.WARNING, "Could not access method.", e);
-		} catch (InstantiationException e) {
-			Bukkit.getLogger().log(Level.WARNING, "Underlying class is abstract.", e);
-		} catch (InvocationTargetException e) {
-			Bukkit.getLogger().log(Level.WARNING, "A error has occured durring invoking of method.", e);
-		} catch (NoSuchMethodException e) {
-			Bukkit.getLogger().log(Level.WARNING, "Could not find method.", e);
-		} catch (ClassNotFoundException e) {
-			Bukkit.getLogger().log(Level.WARNING, "Could not find class.", e);
-		}
-	}
-
-	// The ChatSerializer's instance of Gson
-	private static Object nmsChatSerializerGsonInstance;
-	private static Method fromJsonMethod;
-
-	private Object createChatPacket(String json) throws IllegalArgumentException, IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException {
-		if (nmsChatSerializerGsonInstance == null) {
-			// Find the field and its value, completely bypassing obfuscation
-			Class<?> chatSerializerClazz;
-
-			// Get the three parts of the version string (major version is currently unused)
-			// vX_Y_RZ
-			//   X = major
-			//   Y = minor
-			//   Z = revision
-			final String version = Reflection.getVersion();
-			String[] split = version.substring(1, version.length() - 1).split("_"); // Remove trailing dot
-			//int majorVersion = Integer.parseInt(split[0]);
-			int minorVersion = Integer.parseInt(split[1]);
-			int revisionVersion = Integer.parseInt(split[2].substring(1)); // Substring to ignore R
-
-			if (minorVersion < 8 || (minorVersion == 8 && revisionVersion == 1)) {
-				chatSerializerClazz = Reflection.getNMSClass("ChatSerializer");
-			} else {
-				chatSerializerClazz = Reflection.getNMSClass("IChatBaseComponent$ChatSerializer");
-			}
-
-			if (chatSerializerClazz == null) {
-				throw new ClassNotFoundException("Can't find the ChatSerializer class");
-			}
-
-			for (Field declaredField : chatSerializerClazz.getDeclaredFields()) {
-				if (Modifier.isFinal(declaredField.getModifiers()) && Modifier.isStatic(declaredField.getModifiers()) && declaredField.getType().getName().endsWith("Gson")) {
-					// We've found our field
-					declaredField.setAccessible(true);
-					nmsChatSerializerGsonInstance = declaredField.get(null);
-					fromJsonMethod = nmsChatSerializerGsonInstance.getClass().getMethod("fromJson", String.class, Class.class);
-					break;
-				}
-			}
-		}
-
-		// Since the method is so simple, and all the obfuscated methods have the same name, it's easier to reimplement 'IChatBaseComponent a(String)' than to reflectively call it
-		// Of course, the implementation may change, but fuzzy matches might break with signature changes
-		Object serializedChatComponent = fromJsonMethod.invoke(nmsChatSerializerGsonInstance, json, Reflection.getNMSClass("IChatBaseComponent"));
-
-		return nmsPacketPlayOutChatConstructor.newInstance(serializedChatComponent);
+		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + player.getName() + " " + jsonString);
 	}
 
 	/**
