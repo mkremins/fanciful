@@ -15,7 +15,7 @@ Use Maven. Add the Fanciful repository and dependency entries to your `pom.xml`.
 <dependency>
   <groupId>mkremins</groupId>
   <artifactId>fanciful</artifactId>
-  <version>0.3.5-SNAPSHOT</version>
+  <version>0.4.0-SNAPSHOT</version>
 </dependency>
 ```
 
