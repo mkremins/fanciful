@@ -4,14 +4,9 @@ Lightweight library offering pleasant chat message formatting for Bukkit plugins
 
 Installation
 --------
-Use Maven. Add the Fanciful repository and dependency entries to your `pom.xml`.
+Use Maven. Add the Fanciful dependency entry to your `pom.xml`.
 
 ```xml
-<repository>
-    <id>stealthyone-repo</id>
-    <url>http://repo.stealthyone.com/content/groups/public</url>
-</repository>
-
 <dependency>
   <groupId>mkremins</groupId>
   <artifactId>fanciful</artifactId>
@@ -19,13 +14,18 @@ Use Maven. Add the Fanciful repository and dependency entries to your `pom.xml`.
 </dependency>
 ```
 
+As of [October 2017](https://github.com/mkremins/fanciful/issues/83), the Maven repository that formerly hosted Fanciful artifacts has been shut down. You could continue using Fanciful by cloning this GitHub repository, building Fanciful as a JAR, and [installing it locally](http://maven.apache.org/guides/mini/guide-3rd-party-jars-local.html), but this is not recommended unless you know what you're doing.
+
 Usage
 --------
 See [Example.java](http://github.com/mkremins/fanciful/tree/master/src/example/java/mkremins/fanciful/Example.java) for a simple example.
 
 Status
 --------
-Relatively stable core featureset, with new features under active development.
+Outdated, and largely superseded by newer libraries. No new development or ongoing support. If you're still using Fanciful or looking for something like it, consider one of the following Fanciful-inspired alternatives:
+
+* Spigot's [ChatComponent API](https://www.spigotmc.org/wiki/the-chat-component-api/)
+* [KyoriPowered/text](https://github.com/KyoriPowered/text)
 
 License
 --------
